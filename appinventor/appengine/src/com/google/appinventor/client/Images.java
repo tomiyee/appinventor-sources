@@ -336,6 +336,12 @@ public interface Images extends Resources {
   ImageResource gameclient();
 
   /**
+   * Designer pallete item: GoogleSheets component
+   */
+  @Source("com/google/appinventor/images/googleSheets.png")
+  ImageResource googleSheets();
+
+  /**
    * Designer palette item: Sprite
    */
   @Source("com/google/appinventor/images/imageSprite.png")
@@ -667,7 +673,7 @@ public interface Images extends Resources {
   ImageResource navigationComponent();
 
   /**
-  * Wilson Logo 
+  * Wilson Logo
   */
   @Source("com/google/appinventor/images/wilson.png")
   ImageResource wilson();

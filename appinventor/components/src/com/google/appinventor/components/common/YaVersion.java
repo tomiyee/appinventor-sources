@@ -890,6 +890,8 @@ public class YaVersion {
 
   public static final int GAMECLIENT_COMPONENT_VERSION = 1;
 
+  public static final int GOOGLESHEETS_COMPONENT_VERSION = 1;
+
   public static final int GYROSCOPESENSOR_COMPONENT_VERSION = 1;
 
   // For HORIZONTALARRANGEMENT_COMPONENT_VERSION 2:
