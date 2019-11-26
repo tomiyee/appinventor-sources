@@ -28,6 +28,7 @@ import com.google.appinventor.components.runtime.util.ClientLoginHelper;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
 import com.google.appinventor.components.runtime.util.IClientLoginHelper;
 
+import java.lang.Math;
 
 /**
  * Appinventor Google Sheets Component
@@ -54,4 +55,32 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     super(componentContainer.$form());
   }
 
+  /**
+   * Converts the integer representation of rows and columns
+   * to the reference strings used in Google Sheets. For ex,
+   * row 1 and col 2 corresponds to the string "B1".
+   */
+  @SimpleFunction
+  public String GetCellReference(int row, int col) {
+    String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
+    String result = "";
+    while (col > 0) {
+      String digit = alphabet[(col-1) % 26];
+      result = digit + result;
+      col = (int) Math.floor((col-1) / 26);
+    }
+    result = result + Integer.toString(row);
+    return result;
+  }
+  
+  /**
+   * Converts the integer representation of rows and columns for the
+   * corners of the range to the reference strings used in Google Sheets.
+   * For ex, selecting the range from row 1 col 2 to row 3 col 4
+   * corresponds to the string "B1:D3"
+   */
+  @SimpleFunction
+  public String GetRangeReference(int row1, int col1, int row2, int col2) {
+    return GetCellReference(row1, col1) + ":" + GetCellReference(row2, col2);
+  }
 }
