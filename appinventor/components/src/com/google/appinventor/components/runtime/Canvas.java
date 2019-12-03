@@ -913,16 +913,16 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
   @Override
   @SimpleProperty
   // the bitmap routines will crash if the height is set to 0
-   public void Height(int height) {
-     if ((height > 0) || (height==LENGTH_FILL_PARENT) || (height==LENGTH_PREFERRED) ||
-         (height <= LENGTH_PERCENT_TAG)) {
-       super.Height(height);
-     }
-     else {
-       container.$form().dispatchErrorOccurredEvent(this, "Height",
+  public void Height(int height) {
+    if ((height > 0) || (height==LENGTH_FILL_PARENT) || (height==LENGTH_PREFERRED) ||
+        (height <= LENGTH_PERCENT_TAG)) {
+      super.Height(height);
+    }
+    else {
+      container.$form().dispatchErrorOccurredEvent(this, "Height",
             ErrorMessages.ERROR_CANVAS_HEIGHT_ERROR);
     }
-   }
+  }
 
 
   /**
@@ -1180,23 +1180,23 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
     EventDispatcher.dispatchEvent(this, "Flung", x, y, speed, heading, xvel, yvel, flungSprite);
   }
 
-/**
-   * When the user does a drag from one point (prevX, prevY) to
-   * another (x, y).  The pair (startX, startY) indicates where the
-   * user first touched the screen, and "draggedAnySprite" indicates whether a
-   * sprite is being dragged.
-   *
-   * @param startX the starting x-coordinate
-   * @param startY the starting y-coordinate
-   * @param prevX the previous x-coordinate (possibly equal to startX)
-   * @param prevY the previous y-coordinate (possibly equal to startY)
-   * @param currentX the current x-coordinate
-   * @param currentY the current y-coordinate
-   * @param draggedAnySprite {@code true} if
-   *        {@link Sprite#Dragged(float, float, float, float, float, float)}
-   *        was called for one or more sprites for this segment, {@code false}
-   *        otherwise
-   */
+  /**
+     * When the user does a drag from one point (prevX, prevY) to
+     * another (x, y).  The pair (startX, startY) indicates where the
+     * user first touched the screen, and "draggedAnySprite" indicates whether a
+     * sprite is being dragged.
+     *
+     * @param startX the starting x-coordinate
+     * @param startY the starting y-coordinate
+     * @param prevX the previous x-coordinate (possibly equal to startX)
+     * @param prevY the previous y-coordinate (possibly equal to startY)
+     * @param currentX the current x-coordinate
+     * @param currentY the current y-coordinate
+     * @param draggedAnySprite {@code true} if
+     *        {@link Sprite#Dragged(float, float, float, float, float, float)}
+     *        was called for one or more sprites for this segment, {@code false}
+     *        otherwise
+     */
   @SimpleEvent
   public void Dragged(float startX, float startY, float prevX, float prevY,
                       float currentX, float currentY, boolean draggedAnySprite) {
@@ -1277,7 +1277,7 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
    *                   The first point and last point does not need to be the same. e.g. ((x1 y1) (x2 y2) (x3 y3))
    * @param fill  true for filled shape; false for shape outline
    */
-  @SimpleFunction(description = 
+  @SimpleFunction(description =
       "Draws a shape on the canvas. " +
       "pointList should be a list contains sub-lists with two number which represents a coordinate. " +
       "The first point and last point does not need to be the same. e.g. ((x1 y1) (x2 y2) (x3 y3)) " +
@@ -1347,7 +1347,7 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
    * Start angle is 0 when heading to the right, and increase when rotate clockwise.
    * When useCenter is true, a sector will be drawed instead of an arc.
    * When fill is true, a filled arc (or sector) will be drawed instead of just an outline.
-   * 
+   *
    * @param left   the left end of the oval
    * @param top    the top of the oval
    * @param right  the right end of the oval
@@ -1357,12 +1357,12 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
    * @param useCenter  fill a sector instead of just an arc (when true)
    * @param fill  true for filled arc (or sector); false for outline only
    */
-  @SimpleFunction(description = 
+  @SimpleFunction(description =
       "Draw an arc on Canvas, by drawing an arc from a specified oval (specified by left, top, right & bottom). " +
       "Start angle is 0 when heading to the right, and increase when rotate clockwise. " +
       "When useCenter is true, a sector will be drawed instead of an arc. " +
       "When fill is true, a filled arc (or sector) will be drawed instead of just an outline.")
-  public void DrawArc(int left, int top, int right, int bottom, 
+  public void DrawArc(int left, int top, int right, int bottom,
       float startAngle, float sweepAngle, boolean useCenter, boolean fill) {
     float scalingFactor = $form().deviceDensity();
     Paint p = new Paint(paint);
@@ -1599,4 +1599,3 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
     }
   }
 }
-
