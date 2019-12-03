@@ -139,7 +139,16 @@
     <copy toFile="${public.deps.dir}/httpmime.jar" file="${lib.dir}/apache-http/httpmime-4.3.4.jar" />
     <copy toFile="${public.deps.dir}/fusiontables.jar" file="${lib.dir}/fusiontables/fusiontables.jar" />
     <copy toFile="${public.deps.dir}/firebase.jar" file="${lib.dir}/firebase/firebase-client-android-2.5.0.jar" />
-    <copy toFile="${public.deps.dir}/google-api-client-beta.jar" file="${lib.dir}/oauth/google-api-client-1.10.3-beta.jar" />
+    <copy toFile="${public.deps.dir}/googlesheets.jar" file="${lib.dir}/googlesheets/googlesheets.jar" />
+    <copy toFile="${public.deps.dir}/google-http-client-jackson2-1.33.0.jar" file="${lib.dir}/googlesheets/google-http-client-jackson2-1.33.0.jar" />
+    <copy toFile="${public.deps.dir}/google-api-client-1.20.0.jar" file="${lib.dir}/googlesheets/google-api-client-1.20.0.jar" />
+    <copy toFile="${public.deps.dir}/google-oauth-client-1.30.4.jar" file="${lib.dir}/googlesheets/google-oauth-client-1.30.4.jar" />
+    <copy toFile="${public.deps.dir}/google-oauth-client-java6-1.30.4.jar" file="${lib.dir}/googlesheets/google-oauth-client-java6-1.30.4.jar" />
+    <copy toFile="${public.deps.dir}/jetty-6.1.26.jar" file="${lib.dir}/googlesheets/jetty-6.1.26.jar" />
+    <copy toFile="${public.deps.dir}/jetty-util-6.1.26.jar" file="${lib.dir}/googlesheets/jetty-util-6.1.26.jar" />
+    <copy toFile="${public.deps.dir}/servlet-api-2.5.20110712.jar" file="${lib.dir}/googlesheets/servlet-api-2.5.20110712.jar" />
+    <copy toFile="${public.deps.dir}/google-http-client-1.16.0-rc.jar" file="${lib.dir}/googlesheets/google-http-client-1.16.0-rc.jar" />
+    <copy toFile="${public.deps.dir}/google-oauth-client-jetty-1.30.4.jar" file="${lib.dir}/googlesheets/google-oauth-client-jetty-1.30.4.jar" />
     <copy toFile="${public.deps.dir}/google-http-client-beta.jar" file="${lib.dir}/oauth/google-http-client-1.10.3-beta.jar" />
     <copy toFile="${public.deps.dir}/google-api-client-android2-beta.jar" file="${lib.dir}/oauth/google-api-client-android2-1.10.3-beta.jar" />
     <copy toFile="${public.deps.dir}/google-http-client-android2-beta.jar" file="${lib.dir}/oauth/google-http-client-android2-1.10.3-beta.jar" />
