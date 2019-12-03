@@ -27,6 +27,8 @@ import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.util.ClientLoginHelper;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
 import com.google.appinventor.components.runtime.util.IClientLoginHelper;
+import com.google.appinventor.components.runtime.util.AsynchUtil;
+import com.google.appinventor.components.runtime.util.YailList;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -90,12 +92,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     super(componentContainer.$form());
   }
 
-  /**
-   * Converts the integer representation of rows and columns
-   * to the reference strings used in Google Sheets. For ex,
-   * row 1 and col 2 corresponds to the string "B1".
-   */
-  @SimpleFunction
+  /* Helper Functions for the User */
+
+  @SimpleFunction(
+    description="Converts the integer representation of rows and columns " +
+      "to the reference strings used in Google Sheets. For example, " +
+      "row 1 and col 2 corresponds to the string \"B1\".")
   public String GetCellReference(int row, int col) {
     String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
     String result = "";
@@ -108,98 +110,152 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     return result;
   }
 
-  /**
-   * Converts the integer representation of rows and columns for the
-   * corners of the range to the reference strings used in Google Sheets.
-   * For ex, selecting the range from row 1 col 2 to row 3 col 4
-   * corresponds to the string "B1:D3"
-   */
-  @SimpleFunction
+  @SimpleFunction(
+    description="Converts the integer representation of rows and columns for the "+
+      "corners of the range to the reference strings used in Google Sheets. " +
+      "For ex, selecting the range from row 1 col 2 to row 3 col 4 " +
+      "corresponds to the string \"B1:D3\"")
   public String GetRangeReference(int row1, int col1, int row2, int col2) {
     return GetCellReference(row1, col1) + ":" + GetCellReference(row2, col2);
   }
 
-  /**
-   *
-   */
-  /*@SimpleFunction
-  public String[] ReadRow (String sheetName, int rowNumber) {
-    return new String[1];
-  }*/
+  /* Row-wise Operations */
 
-  /**
-   *
-   */
-  /*@SimpleFunction
-  public void WriteRow (String sheetName, int rowNumber, String[] data) {}*/
+  @SimpleFunction
+  public void ReadRow (String sheetName, int rowNumber) {
+    AsynchUtil.runAsynchronously(new Runnable () {
+      @Override
+      public void run () {
+        try {
 
-  /**
-   *
-   */
-  /*@SimpleFunction
-  public void AddRow (String sheetName, String[] data) {}*/
+          // ... Read Row Implementation
+          // ... End with ReadRow(YailList response)
 
-  /**
-   *
-   */
+        } catch (Exception e) {
+          // Unforeseen Error
+        }
+      }
+    });
+  }
+
+  @SimpleEvent
+  public void ReadRow (YailList rowDataList) {
+    EventDispatcher.dispatchEvent(this, "ReadRow", rowDataList);
+  }
+
+  @SimpleFunction
+  public void WriteRow (String sheetName, int rowNumber, YailList data) {}
+
+  @SimpleFunction
+  public void AddRow (String sheetName, YailList data) {}
+
   @SimpleFunction
   public void RemoveRow (String sheetName, int rowNumber) {}
 
-  /**
-   *
-   */
-  /*@SimpleFunction
-  public String[] ReadCol (String sheetName, int colNumber) {
-    return new String[1];
-  }*/
+  /* Column-wise Operations */
 
-  /**
-   *
-   */
-  /*@SimpleFunction
-  public void WriteCol (String sheetName, int colNumber, String[] data) {}*/
+  @SimpleFunction
+  public void ReadCol (String sheetName, int colNumber) {
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try {
 
-  /**
-   *
-   */
-  /*@SimpleFunction
-  public void AddCol (String sheetName, String[] data) {}*/
+          // ... Read Column Implementation
+          // ... End with ReadCol(YailList response)
 
-  /**
-   *
-   */
+        } catch (Exception e) {
+          // Unforeseen Error
+        }
+      }
+    });
+  }
+
+  @SimpleEvent
+  public void ReadCol (YailList colDataList) {
+    EventDispatcher.dispatchEvent(this, "ReadCol", colDataList);
+  }
+
+  @SimpleFunction
+  public void WriteCol (String sheetName, int colNumber, YailList data) {
+  }
+
+  @SimpleFunction
+  public void AddCol (String sheetName, YailList data) {}
+
   @SimpleFunction
   public void RemoveCol (String sheetName, int colNumber) {}
 
-  /**
-   *
-   */
+  /* Cell-wise Operations */
+
   @SimpleFunction
-  public int NumRows (String sheetName) {
-    return 0;
+  public void ReadCell (String sheetName, String cellReference) {
+    // 1. Check that the Cell Reference is actually a single cell
+    // 2. Asynchronously fetch the data in the cell
+
+    // 1.
+    if (!cellReference.matches("[a-zA-Z]+[0-9]+")) {
+      return;
+    }
+    // 2.
+    AsyncUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try {
+
+          // ... Read Cell Implementation
+          // ... End with ReadCell (YailList response)
+          YailList response;
+          ReadCell (response);
+
+        } catch (Exception e) {
+
+        }
+      }
+    });
   }
 
-  /**
-   *
-   */
-  @SimpleFunction
-  public int NumCols (String sheetName) {
-    return 0;
+  @SimpleEvent
+  public void ReadCell(YailList cellDataList) {
+    EventDispatcher.dispatchEvent(this, "ReadCell", cellDataList);
   }
 
-  /**
-   *
-   */
-  @SimpleFunction
-  public String ReadCell (String sheetName, String cellReference) {
-    return "";
-  }
-
-  /**
-   *
-   */
   @SimpleFunction
   public void WriteCell (String sheetName, String cellReference, String data) {}
 
+  /* Range-wise Operations */
+
+  @SimpleFunction
+  public void ReadRange (String sheetName, String rangeReference) {
+    // 1. Check that it is a valid range
+    // 2. Asynchronously Fetch the data in the given range
+
+
+    AsyncUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try {
+
+          // ... Read Range Implementation
+          // ... End with ReadRange (YailList response)
+          YailList response;
+          ReadRange (response);
+
+        } catch (Exception e) {
+          // Unforeseen Error
+        }
+      }
+    });
+  }
+
+  @SimpleEvent
+  public void ReadRange (YailList cellDataList) {
+
+  }
+
+  @SimpleFunction
+  public void WriteRange (String sheetName, String rangeReference, YailList data) {
+    // 1. Check that the dimensions of the YailList is the same as the Range Reference
+  }
 
 }
