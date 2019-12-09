@@ -141,22 +141,19 @@
     <copy toFile="${public.deps.dir}/fusiontables.jar" file="${lib.dir}/fusiontables/fusiontables.jar" />
     <copy toFile="${public.deps.dir}/firebase.jar" file="${lib.dir}/firebase/firebase-client-android-2.5.0.jar" />
     <copy toFile="${public.deps.dir}/googlesheets.jar" file="${lib.dir}/googlesheets/googlesheets.jar" />
-    <copy toFile="${public.deps.dir}/google-http-client-jackson2-1.33.0.jar" file="${lib.dir}/googlesheets/google-http-client-jackson2-1.33.0.jar" />
-    <copy toFile="${public.deps.dir}/google-api-client-1.20.0.jar" file="${lib.dir}/googlesheets/google-api-client-1.20.0.jar" />
-    <copy toFile="${public.deps.dir}/google-oauth-client-1.30.4.jar" file="${lib.dir}/googlesheets/google-oauth-client-1.30.4.jar" />
-    <copy toFile="${public.deps.dir}/google-oauth-client-java6-1.30.4.jar" file="${lib.dir}/googlesheets/google-oauth-client-java6-1.30.4.jar" />
-    <copy toFile="${public.deps.dir}/jetty-6.1.26.jar" file="${lib.dir}/googlesheets/jetty-6.1.26.jar" />
-    <copy toFile="${public.deps.dir}/jetty-util-6.1.26.jar" file="${lib.dir}/googlesheets/jetty-util-6.1.26.jar" />
-    <copy toFile="${public.deps.dir}/servlet-api-2.5.20110712.jar" file="${lib.dir}/googlesheets/servlet-api-2.5.20110712.jar" />
-    <copy toFile="${public.deps.dir}/google-http-client-1.16.0-rc.jar" file="${lib.dir}/googlesheets/google-http-client-1.16.0-rc.jar" />
-    <copy toFile="${public.deps.dir}/google-oauth-client-jetty-1.30.4.jar" file="${lib.dir}/googlesheets/google-oauth-client-jetty-1.30.4.jar" />
-    <copy toFile="${public.deps.dir}/google-http-client-beta.jar" file="${lib.dir}/oauth/google-http-client-1.10.3-beta.jar" />
+    <copy toFile="${public.deps.dir}/jetty.jar" file="${lib.dir}/googlesheets/jetty-6.1.26.jar" />
+    <copy toFile="${public.deps.dir}/jetty-util.jar" file="${lib.dir}/googlesheets/jetty-util-6.1.26.jar" />
+    <copy toFile="${public.deps.dir}/google-http-client.jar" file="${lib.dir}/oauth/google-http-client-1.16.0-rc.jar" />
+    <copy toFile="${public.deps.dir}/google-api-client.jar" file="${lib.dir}/oauth/google-api-client-1.30.2.jar" />
     <copy toFile="${public.deps.dir}/google-api-client-android2-beta.jar" file="${lib.dir}/oauth/google-api-client-android2-1.10.3-beta.jar" />
     <copy toFile="${public.deps.dir}/google-http-client-android2-beta.jar" file="${lib.dir}/oauth/google-http-client-android2-1.10.3-beta.jar" />
     <copy toFile="${public.deps.dir}/google-http-client-android3-beta.jar" file="${lib.dir}/oauth/google-http-client-android3-1.10.3-beta.jar" />
+    <copy toFile="${public.deps.dir}/google-http-client-jackson2.jar" file="${lib.dir}/oauth/google-http-client-jackson2-1.33.0.jar" />
+    <copy toFile="${public.deps.dir}/google-oauth-client.jar" file="${lib.dir}/oauth/google-oauth-client-1.30.4.jar" />
+    <copy toFile="${public.deps.dir}/google-oauth-client-java6.jar" file="${lib.dir}/oauth/google-oauth-client-java6-1.30.4.jar" />
+    <copy toFile="${public.deps.dir}/google-oauth-client-jetty.jar" file="${lib.dir}/oauth/google-oauth-client-jetty-1.30.4.jar" />
     <copy toFile="${public.deps.dir}/gson-2.1.jar" file="${lib.dir}/gson/gson-2.1.jar" />
     <copy toFile="${public.deps.dir}/json.jar" file="${lib.dir}/json/json.jar" />
-    <copy toFile="${public.deps.dir}/google-oauth-client-beta.jar" file="${lib.dir}/oauth/google-oauth-client-1.10.1-beta.jar" />
     <copy toFile="${public.deps.dir}/jedis.jar" file="${lib.dir}/jedis/jedis-3.0.0-SNAPSHOT-jar-with-dependencies.jar" />
     <copy toFile="${public.deps.dir}/commons-pool.jar" file="${lib.dir}/commons-pool/commons-pool2-2.0.jar" />
     <copy toFile="${public.deps.dir}/guava-14.0.1.jar" file="${lib.dir}/guava/guava-14.0.1.jar" />

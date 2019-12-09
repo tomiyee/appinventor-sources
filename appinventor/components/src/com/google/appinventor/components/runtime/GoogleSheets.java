@@ -8,9 +8,7 @@ package com.google.appinventor.components.runtime;
 import com.google.api.client.extensions.android2.AndroidHttp;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.googleapis.services.GoogleKeyInitializer;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
@@ -39,7 +37,6 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
@@ -77,7 +74,15 @@ import java.util.List;
     "android.permission.USE_CREDENTIALS," +
     "android.permission.WRITE_EXTERNAL_STORAGE," +
     "android.permission.READ_EXTERNAL_STORAGE")
-@UsesLibraries(libraries = "googlesheets.jar,google-api-client-1.20.0.jar")
+@UsesLibraries(libraries =
+  "googlesheets.jar," +
+  "google-api-client.jar," +
+  "google-http-client-jackson2.jar," +
+  "google-oauth-client.jar," +
+  "google-oauth-client-jetty.jar," +
+  "google-http-client.jar," +
+  "jetty.jar," +
+  "jetty-util.jar")
 
 public class GoogleSheets extends AndroidNonvisibleComponent implements Component {
   private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
@@ -198,15 +203,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       return;
     }
     // 2.
-    AsyncUtil.runAsynchronously(new Runnable() {
+    AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
         try {
 
           // ... Read Cell Implementation
           // ... End with ReadCell (YailList response)
-          YailList response;
-          ReadCell (response);
 
         } catch (Exception e) {
 
@@ -230,16 +233,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     // 1. Check that it is a valid range
     // 2. Asynchronously Fetch the data in the given range
 
-
-    AsyncUtil.runAsynchronously(new Runnable() {
+    AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
         try {
 
           // ... Read Range Implementation
           // ... End with ReadRange (YailList response)
-          YailList response;
-          ReadRange (response);
 
         } catch (Exception e) {
           // Unforeseen Error

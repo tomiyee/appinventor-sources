@@ -65,7 +65,7 @@ import java.util.Formatter;
                    iconName = "images/phoneip.png")
 @SimpleObject
 @UsesLibraries(libraries = "webrtc.jar," +
-    "google-http-client-beta.jar," +
+    "google-http-client.jar," +
     "google-http-client-android2-beta.jar," +
     "google-http-client-android3-beta.jar")
 @UsesNativeLibraries(v7aLibraries = "libjingle_peerconnection_so.so",
