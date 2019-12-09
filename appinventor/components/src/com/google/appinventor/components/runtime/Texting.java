@@ -159,12 +159,12 @@ import android.widget.Toast;
   "android.permission.ACCOUNT_MANAGER, android.permission.MANAGE_ACCOUNTS, " +
   "android.permission.GET_ACCOUNTS, android.permission.USE_CREDENTIALS")
 @UsesLibraries(libraries =
-  "google-api-client-beta.jar," +
+  "google-api-client.jar," +
   "google-api-client-android2-beta.jar," +
-  "google-http-client-beta.jar," +
+  "google-http-client.jar," +
   "google-http-client-android2-beta.jar," +
   "google-http-client-android3-beta.jar," +
-  "google-oauth-client-beta.jar," +
+  "google-oauth-client.jar," +
   "guava-14.0.1.jar")
 public class Texting extends AndroidNonvisibleComponent
   implements Component, OnResumeListener, OnPauseListener, OnInitializeListener, OnStopListener,
@@ -226,7 +226,7 @@ public class Texting extends AndroidNonvisibleComponent
   // No messages can be received until Initialized
   private boolean isInitialized;
 
-  // True when resumed and false when paused. 
+  // True when resumed and false when paused.
   // Messages are cached when app is not running
   private static boolean isRunning;
 
@@ -286,7 +286,7 @@ public class Texting extends AndroidNonvisibleComponent
     isInitialized = false; // Set true when the form is initialized and can dispatch
     isRunning = false;     // This will be set true in onResume and false in onPause
 
-    // Register this component for lifecycle callbacks 
+    // Register this component for lifecycle callbacks
     container.$form().registerForOnInitialize(this);
     container.$form().registerForOnResume(this);
     container.$form().registerForOnPause(this);
@@ -329,8 +329,8 @@ public class Texting extends AndroidNonvisibleComponent
   }
 
   /**
-   * The number that the message will be sent to when the SendMessage method is called.  The 
-   * number is a text string with the specified digits (e.g., 6505551212).  Dashes, dots, 
+   * The number that the message will be sent to when the SendMessage method is called.  The
+   * number is a text string with the specified digits (e.g., 6505551212).  Dashes, dots,
    * and parentheses may be included (e.g., (650)-555-1212) but will be ignored; spaces
    * should not be included.
    */
@@ -810,7 +810,7 @@ public class Texting extends AndroidNonvisibleComponent
     /**
      * Free software method copied and adapted from Voice.java
      * @see http://code.google.com/p/google-voice-java/
-     * 
+     *
      */
     private String sendGvSms(String smsData) {
       Log.i(TAG, "sendGvSms()");
@@ -948,7 +948,7 @@ public class Texting extends AndroidNonvisibleComponent
         responseCode = conn.getResponseCode();
         Log.i(TAG, urlString + " - " + conn.getResponseMessage());
       } catch (Exception e) {
-        throw new IOException(urlString + " : " + conn.getResponseMessage() + "("+responseCode+") : IO Error."); 
+        throw new IOException(urlString + " : " + conn.getResponseMessage() + "("+responseCode+") : IO Error.");
       }
 
       processCookies(conn);
@@ -999,11 +999,11 @@ public class Texting extends AndroidNonvisibleComponent
 
 
   /**
-   * Callback method to handle the result of attempting to send a message. 
-   * Each message is assigned a Broadcast receiver that is notified by 
-   * the phone's radio regarding the status of the sent message. The 
+   * Callback method to handle the result of attempting to send a message.
+   * Each message is assigned a Broadcast receiver that is notified by
+   * the phone's radio regarding the status of the sent message. The
    * receivers call this method.  (See transmitMessage() method below.)
-   * 
+   *
    * @param context
    *            The context in which the calling BroadcastReceiver is running.
    * @param receiver
@@ -1173,12 +1173,12 @@ public class Texting extends AndroidNonvisibleComponent
       try {
 
         // Set up the smsMessage for Google Voice
-        smsData = 
-          URLEncoder.encode("phoneNumber", UTF8) + "=" + URLEncoder.encode(phoneNumber, UTF8) + 
+        smsData =
+          URLEncoder.encode("phoneNumber", UTF8) + "=" + URLEncoder.encode(phoneNumber, UTF8) +
           "&" + URLEncoder.encode("text", UTF8) + "=" + URLEncoder.encode(message, UTF8);
 
         if (gvHelper == null) {
-          gvHelper = new GoogleVoiceUtil(authToken);  
+          gvHelper = new GoogleVoiceUtil(authToken);
         }
         if (gvHelper.isInitialized()) {
           response = gvHelper.sendGvSms(smsData);
@@ -1209,9 +1209,9 @@ public class Texting extends AndroidNonvisibleComponent
       }
       if (ok)
         Toast.makeText(activity, "Message sent", Toast.LENGTH_SHORT).show();
-      else if (code == 58) 
+      else if (code == 58)
         Toast.makeText(activity, "Errcode 58: SMS limit reached", Toast.LENGTH_SHORT).show();
-      else if (result.contains("IO Error")) 
+      else if (result.contains("IO Error"))
         Toast.makeText(activity, result, Toast.LENGTH_SHORT).show();
     }
   }
@@ -1234,4 +1234,3 @@ public class Texting extends AndroidNonvisibleComponent
   }
 
 }
-
