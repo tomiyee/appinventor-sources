@@ -3,6 +3,8 @@
 // Copyright 2011-2012 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
+
+
 package com.google.appinventor.components.runtime;
 
 import com.google.api.client.extensions.android2.AndroidHttp;
@@ -62,7 +64,7 @@ import java.util.List;
  */
 @DesignerComponent(version = YaVersion.GOOGLESHEETS_COMPONENT_VERSION,
     category = ComponentCategory.STORAGE,
-    description = "TBD",
+    description = "<p>A non-visible component that communicates with Google Sheets.</p>",
     nonVisible = true,
     iconName = "images/googleSheets.png")
 @SimpleObject
@@ -77,24 +79,38 @@ import java.util.List;
 @UsesLibraries(libraries =
   "googlesheets.jar," +
   "google-api-client.jar," +
+  "google-http-client.jar," +
   "google-http-client-jackson2.jar," +
   "google-oauth-client.jar," +
   "google-oauth-client-jetty.jar," +
-  "google-http-client.jar," +
   "jetty.jar," +
   "jetty-util.jar")
-
 public class GoogleSheets extends AndroidNonvisibleComponent implements Component {
-  private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
-  private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-  private static final String TOKENS_DIRECTORY_PATH = "tokens";
-
-  // The Scopes and the Credentials File Path.
-  private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
-  private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+  // private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
+  // private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+  // private static final String TOKENS_DIRECTORY_PATH = "tokens";
+  //
+  // // The Scopes and the Credentials File Path.
+  // private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+  // private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
   public GoogleSheets(ComponentContainer componentContainer) {
     super(componentContainer.$form());
+  }
+
+  /* Getter and Setters for Properties */
+  private String apiKey = "";
+
+  @SimpleProperty(
+    description = "API Key")
+  public String ApiKey() {
+    return apiKey;
+  }
+
+  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING, defaultValue = "")
+  @SimpleProperty
+  public void ApiKey(String apiKey) {
+    this.apiKey = apiKey;
   }
 
   /* Helper Functions for the User */
@@ -144,7 +160,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleEvent
-  public void ReadRow (YailList rowDataList) {
+  public void GotRowData (YailList rowDataList) {
     EventDispatcher.dispatchEvent(this, "ReadRow", rowDataList);
   }
 
@@ -177,7 +193,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleEvent
-  public void ReadCol (YailList colDataList) {
+  public void GotColData (YailList colDataList) {
     EventDispatcher.dispatchEvent(this, "ReadCol", colDataList);
   }
 
@@ -219,7 +235,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleEvent
-  public void ReadCell(YailList cellDataList) {
+  public void GotCellData(YailList cellDataList) {
     EventDispatcher.dispatchEvent(this, "ReadCell", cellDataList);
   }
 
@@ -249,7 +265,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleEvent
-  public void ReadRange (YailList cellDataList) {
+  public void GotRangeData (YailList rangeDataList) {
 
   }
 
