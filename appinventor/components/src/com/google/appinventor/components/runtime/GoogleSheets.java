@@ -12,6 +12,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.http.HttpTransport;
+// import com.google.api.client.http.HttpRequest;
+
 import com.google.appinventor.components.annotations.androidmanifest.ActivityElement;
 import com.google.appinventor.components.annotations.androidmanifest.IntentFilterElement;
 import com.google.appinventor.components.annotations.androidmanifest.ActionElement;
@@ -106,6 +108,7 @@ import org.json.JSONObject;
   "google-http-client-jackson2.jar," +
   "google-oauth-client.jar," +
   "google-oauth-client-jetty.jar," +
+  "guava.jar," +
   "jetty.jar," +
   "jetty-util.jar")
 @UsesActivities(activities = {
@@ -193,39 +196,25 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Temporary testing functions */
   String APPLICATION_NAME = "Test Application";
 
-  private Credential authorize() throws IOException, GeneralSecurityException {
+  private Credential authorize() throws IOException {
 
-    InputStream is = GoogleSheets.class
-      .getResourceAsStream(this.credentialsPath);
+    // TODO - Only change cachedCredentialsFile if credentials path is different. See FusionTables
+    cachedCredentialsFile = MediaUtil.copyMediaToTempFile(container.$form(), this.credentialsPath);
 
-    Credential credential = GoogleCredential.fromStream(is)
-      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
+    // Convert the above java.io.File -> InputStream
+    InputStream in = new FileInputStream(cachedCredentialsFile);
 
-    // InputStream in = GoogleSheets.class.getResourceAsStream(this.credentialsPath);
-    // GoogleClientSecrets clientSecrets = GoogleClientSecrets.load (
-    //   JacksonFactory.getDefaultInstance(),
-    //   new InputStreamReader(in)
-    // );
-    //
-    // List<String> scopes = Arrays.asList(SheetsScopes.SPREADSHEETS);
-    // // This is what opens the Google OAuth things in a new window thing.
-    // GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-    //   GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(),
-    //   clientSecrets, scopes)
-    //   .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
-    //   .setAccessType("offline")
-    //   .build();
-    //
-    // Credential credential = new AuthorizationCodeInstalledApp(
-    //   flow, new LocalServerReceiver())
-    //   .authorize("user");
+    // TODO: Catch Malformed Credentials JSON
+    Credential credential = GoogleCredential.fromStream(in)
+      .createScoped(Arrays.asList(SheetsScopes.SPREADSHEETS));
 
     return credential;
   }
 
   public Sheets getSheetsService ()  throws IOException, GeneralSecurityException {
     Credential credential = authorize();
-    return new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(),
+
+    return new Sheets.Builder(new com.google.api.client.http.javanet.NetHttpTransport(),
       JacksonFactory.getDefaultInstance(), credential)
       .setApplicationName(APPLICATION_NAME)
       .build();
@@ -234,38 +223,27 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   @SimpleFunction()
   public String TestGet () throws IOException, GeneralSecurityException {
 
-    // TODO - Only change cachedCredentialsFile if credentials path is different. See FusionTables
-    Sheets sheets = getSheetsService();
-    
-    return "Okay";
-
-    // Sheets sheetsService = getSheetsService();
-
-    //
-    // String range = "congress!A2:F10";
-    // return "Checkpoint 2 Reached";
-    //
-    // ValueRange response = sheetsService.spreadsheets().values()
-    //   .get(spreadsheetID, range)
-    //   .execute();
-    //
-    // List<List<Object>> values = response.getValues();
-    //
-    // if (values == null || values.isEmpty()) {
-    //   return "No Data Found.";
-    // }
-    // // Just prints the first thing in the first list
-    // else {
-    //   String res = "";
-    //   for (List row : values) {
-    //     String s = String.format("%s %s from %s", row.get(5), row.get(4), row.get(1));
-    //     res += s;
-    //     res += ";";
-    //   }
-    //   return res;
-    // }
+    Sheets sheetsService = getSheetsService();
+    sheetsService.spreadsheets().values().get(spreadsheetID, "A2:B3");
+    // ValueRange readResult = sheetsService.spreadsheets().values()
+    //       .get(spreadsheetID, "A2:B3").execute();
+    return "Succ";
+    // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+    // return "Succ";
   }
 
+  @SimpleFunction()
+  public String TestGet2 () throws IOException, GeneralSecurityException {
+
+    Sheets sheetsService = getSheetsService();
+    // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+    sheetsService.spreadsheets().values().get(spreadsheetID, "A2:B3").execute();
+    // ValueRange readResult = sheetsService.spreadsheets().values()
+    //       .get(spreadsheetID, "A2:B3").execute();
+    // List<List<Object>> vals = readResult.getValues();
+    // String first = String.format("%s", vals.get(0).get(0));
+    return "Succ2";
+  }
 
   @SimpleEvent
   public void GotText(String response) {
