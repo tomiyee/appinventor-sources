@@ -165,7 +165,7 @@ import android.widget.Toast;
   "google-http-client-android2-beta.jar," +
   "google-http-client-android3-beta.jar," +
   "google-oauth-client.jar," +
-  "guava-14.0.1.jar")
+  "guava.jar")
 public class Texting extends AndroidNonvisibleComponent
   implements Component, OnResumeListener, OnPauseListener, OnInitializeListener, OnStopListener,
     Deleteable, ActivityResultListener {
