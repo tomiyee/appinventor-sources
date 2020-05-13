@@ -582,8 +582,8 @@ None
  using diacritical marks.
 
 {:id="Texting.PhoneNumber" .text} *PhoneNumber*
-: The number that the message will be sent to when the SendMessage method is called.  The 
- number is a text string with the specified digits (e.g., 6505551212).  Dashes, dots, 
+: The number that the message will be sent to when the SendMessage method is called.  The
+ number is a text string with the specified digits (e.g., 6505551212).  Dashes, dots,
  and parentheses may be included (e.g., (650)-555-1212) but will be ignored; spaces
  should not be included.
 

@@ -133,6 +133,7 @@
 <ul>
   <li><a href="#CloudDB">CloudDB</a></li>
   <li><a href="#File">File</a></li>
+  <li><a href="#GoogleSheets">GoogleSheets</a></li>
   <li><a href="#TinyDB">TinyDB</a></li>
   <li><a href="#TinyWebDB">TinyWebDB</a></li>
 </ul>
@@ -261,6 +262,73 @@
     <p>Note that this block will overwrite a file if it already exists. If you want to add content
  to an existing file use the <a href="#File.AppendToFile"><code class="highlighter-rouge">AppendToFile</code></a> method.</p>
   </dd>
+</dl>
+
+<h2 id="GoogleSheets">GoogleSheets</h2>
+
+<p>Appinventor Google Sheets Component</p>
+
+<h3 id="GoogleSheets-Properties">Properties</h3>
+
+<dl class="properties">
+  <dt id="GoogleSheets.ApiKey" class="text"><em>ApiKey</em></dt>
+  <dd>Property for ApiKey</dd>
+  <dt id="GoogleSheets.credentialsJson" class="text"><em>credentialsJson</em></dt>
+  <dd>Property for credentialsJson</dd>
+  <dt id="GoogleSheets.spreadsheetID" class="text"><em>spreadsheetID</em></dt>
+  <dd>The ID for the Google Sheets file you want to edit. You can find the spreadsheetID in the URL of the Google Sheets file.</dd>
+</dl>
+
+<h3 id="GoogleSheets-Events">Events</h3>
+
+<dl class="events">
+  <dt id="GoogleSheets.GotCellData">GotCellData(<em class="list">cellDataList</em>)</dt>
+  <dd>Event for GotCellData</dd>
+  <dt id="GoogleSheets.GotColData">GotColData(<em class="list">colDataList</em>)</dt>
+  <dd>Event for GotColData</dd>
+  <dt id="GoogleSheets.GotRangeData">GotRangeData(<em class="list">rangeDataList</em>)</dt>
+  <dd>Event for GotRangeData</dd>
+  <dt id="GoogleSheets.GotRowData">GotRowData(<em class="list">rowDataList</em>)</dt>
+  <dd>Event for GotRowData</dd>
+  <dt id="GoogleSheets.GotText">GotText(<em class="text">response</em>)</dt>
+  <dd>Event for GotText</dd>
+</dl>
+
+<h3 id="GoogleSheets-Methods">Methods</h3>
+
+<dl class="methods">
+  <dt id="GoogleSheets.AddCol" class="method"><i></i> AddCol(<em class="text">sheetName</em>,<em class="list">data</em>)</dt>
+  <dd>Method for AddCol</dd>
+  <dt id="GoogleSheets.AddRow" class="method"><i></i> AddRow(<em class="text">sheetName</em>,<em class="list">data</em>)</dt>
+  <dd>Method for AddRow</dd>
+  <dt id="GoogleSheets.GetCellReference" class="method returns text"><i></i> GetCellReference(<em class="number">row</em>,<em class="number">col</em>)</dt>
+  <dd>Converts the integer representation of rows and columns to the reference strings used in Google Sheets. For example, row 1 and col 2 corresponds to the string “B1”.</dd>
+  <dt id="GoogleSheets.GetRangeReference" class="method returns text"><i></i> GetRangeReference(<em class="number">row1</em>,<em class="number">col1</em>,<em class="number">row2</em>,<em class="number">col2</em>)</dt>
+  <dd>Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string “B1:D3”</dd>
+  <dt id="GoogleSheets.ReadCell" class="method"><i></i> ReadCell(<em class="text">sheetName</em>,<em class="text">cellReference</em>)</dt>
+  <dd>Method for ReadCell</dd>
+  <dt id="GoogleSheets.ReadCol" class="method"><i></i> ReadCol(<em class="text">sheetName</em>,<em class="number">colNumber</em>)</dt>
+  <dd>Method for ReadCol</dd>
+  <dt id="GoogleSheets.ReadRange" class="method"><i></i> ReadRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>)</dt>
+  <dd>Method for ReadRange</dd>
+  <dt id="GoogleSheets.ReadRow" class="method"><i></i> ReadRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>)</dt>
+  <dd>Method for ReadRow</dd>
+  <dt id="GoogleSheets.RemoveCol" class="method"><i></i> RemoveCol(<em class="text">sheetName</em>,<em class="number">colNumber</em>)</dt>
+  <dd>Method for RemoveCol</dd>
+  <dt id="GoogleSheets.RemoveRow" class="method"><i></i> RemoveRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>)</dt>
+  <dd>Method for RemoveRow</dd>
+  <dt id="GoogleSheets.TestGet" class="method returns text"><i></i> TestGet()</dt>
+  <dd>Method for TestGet</dd>
+  <dt id="GoogleSheets.TestGet2" class="method returns text"><i></i> TestGet2()</dt>
+  <dd>Method for TestGet2</dd>
+  <dt id="GoogleSheets.WriteCell" class="method"><i></i> WriteCell(<em class="text">sheetName</em>,<em class="text">cellReference</em>,<em class="text">data</em>)</dt>
+  <dd>Method for WriteCell</dd>
+  <dt id="GoogleSheets.WriteCol" class="method"><i></i> WriteCol(<em class="text">sheetName</em>,<em class="number">colNumber</em>,<em class="list">data</em>)</dt>
+  <dd>Method for WriteCol</dd>
+  <dt id="GoogleSheets.WriteRange" class="method"><i></i> WriteRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>,<em class="list">data</em>)</dt>
+  <dd>Method for WriteRange</dd>
+  <dt id="GoogleSheets.WriteRow" class="method"><i></i> WriteRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>,<em class="list">data</em>)</dt>
+  <dd>Method for WriteRow</dd>
 </dl>
 
 <h2 id="TinyDB">TinyDB</h2>

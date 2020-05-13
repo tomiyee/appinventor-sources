@@ -10,6 +10,7 @@ Table of Contents:
 
 * [CloudDB](#CloudDB)
 * [File](#File)
+* [GoogleSheets](#GoogleSheets)
 * [TinyDB](#TinyDB)
 * [TinyWebDB](#TinyWebDB)
 
@@ -161,6 +162,96 @@ None
 
    Note that this block will overwrite a file if it already exists. If you want to add content
  to an existing file use the [`AppendToFile`](#File.AppendToFile) method.
+
+## GoogleSheets  {#GoogleSheets}
+
+Appinventor Google Sheets Component
+
+
+
+### Properties  {#GoogleSheets-Properties}
+
+{:.properties}
+
+{:id="GoogleSheets.ApiKey" .text} *ApiKey*
+: Property for ApiKey
+
+{:id="GoogleSheets.credentialsJson" .text} *credentialsJson*
+: Property for credentialsJson
+
+{:id="GoogleSheets.spreadsheetID" .text} *spreadsheetID*
+: The ID for the Google Sheets file you want to edit. You can find the spreadsheetID in the URL of the Google Sheets file.
+
+### Events  {#GoogleSheets-Events}
+
+{:.events}
+
+{:id="GoogleSheets.GotCellData"} GotCellData(*cellDataList*{:.list})
+: Event for GotCellData
+
+{:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
+: Event for GotColData
+
+{:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeDataList*{:.list})
+: Event for GotRangeData
+
+{:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
+: Event for GotRowData
+
+{:id="GoogleSheets.GotText"} GotText(*response*{:.text})
+: Event for GotText
+
+### Methods  {#GoogleSheets-Methods}
+
+{:.methods}
+
+{:id="GoogleSheets.AddCol" class="method"} <i/> AddCol(*sheetName*{:.text},*data*{:.list})
+: Method for AddCol
+
+{:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*data*{:.list})
+: Method for AddRow
+
+{:id="GoogleSheets.GetCellReference" class="method returns text"} <i/> GetCellReference(*row*{:.number},*col*{:.number})
+: Converts the integer representation of rows and columns to the reference strings used in Google Sheets. For example, row 1 and col 2 corresponds to the string "B1".
+
+{:id="GoogleSheets.GetRangeReference" class="method returns text"} <i/> GetRangeReference(*row1*{:.number},*col1*{:.number},*row2*{:.number},*col2*{:.number})
+: Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
+
+{:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
+: Method for ReadCell
+
+{:id="GoogleSheets.ReadCol" class="method"} <i/> ReadCol(*sheetName*{:.text},*colNumber*{:.number})
+: Method for ReadCol
+
+{:id="GoogleSheets.ReadRange" class="method"} <i/> ReadRange(*sheetName*{:.text},*rangeReference*{:.text})
+: Method for ReadRange
+
+{:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
+: Method for ReadRow
+
+{:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*sheetName*{:.text},*colNumber*{:.number})
+: Method for RemoveCol
+
+{:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*sheetName*{:.text},*rowNumber*{:.number})
+: Method for RemoveRow
+
+{:id="GoogleSheets.TestGet" class="method returns text"} <i/> TestGet()
+: Method for TestGet
+
+{:id="GoogleSheets.TestGet2" class="method returns text"} <i/> TestGet2()
+: Method for TestGet2
+
+{:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.text})
+: Method for WriteCell
+
+{:id="GoogleSheets.WriteCol" class="method"} <i/> WriteCol(*sheetName*{:.text},*colNumber*{:.number},*data*{:.list})
+: Method for WriteCol
+
+{:id="GoogleSheets.WriteRange" class="method"} <i/> WriteRange(*sheetName*{:.text},*rangeReference*{:.text},*data*{:.list})
+: Method for WriteRange
+
+{:id="GoogleSheets.WriteRow" class="method"} <i/> WriteRow(*sheetName*{:.text},*rowNumber*{:.number},*data*{:.list})
+: Method for WriteRow
 
 ## TinyDB  {#TinyDB}
 

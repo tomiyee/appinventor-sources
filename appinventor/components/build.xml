@@ -327,7 +327,7 @@
       <classpath>
         <pathelement location="${public.build.dir}/CommonConstants.jar" />
         <pathelement location="${build.dir}/common/CommonUtils.jar" />
-        <pathelement location="${lib.dir}/guava/guava-14.0.1.jar" />
+        <pathelement location="${lib.dir}/guava/guava-27.1-android.jar" />
         <pathelement location="${lib.dir}/json/json.jar" />
       </classpath>
     </ai.javac>
@@ -342,7 +342,7 @@
          destfile="${local.build.dir}/AnnotationProcessors.jar" >
       <zipfileset src="${public.build.dir}/CommonConstants.jar"/>
       <zipfileset src="${build.dir}/common/CommonUtils.jar" />
-      <zipfileset src="${lib.dir}/guava/guava-14.0.1.jar" />
+      <zipfileset src="${lib.dir}/guava/guava-27.1-android.jar" />
       <zipfileset src="${lib.dir}/json/json.jar" />
       <fileset dir="${src.dir}">
         <include name="META-INF/**/*"/>
@@ -596,7 +596,7 @@
       <libraryjar file="${public.deps.dir}/google-oauth-client-beta.jar" />
       <libraryjar file="${public.deps.dir}/jedis.jar" />
       <libraryjar file="${public.deps.dir}/commons-pool.jar" />
-      <libraryjar file="${public.deps.dir}/guava-14.0.1.jar" />
+      <libraryjar file="${public.deps.dir}/guava-27.1-android.jar" />
       <libraryjar file="${public.deps.dir}/core.jar" />
       <!-- Android Runtime -->
       <libraryjar file="${public.build.dir}/AndroidRuntime.jar" />
