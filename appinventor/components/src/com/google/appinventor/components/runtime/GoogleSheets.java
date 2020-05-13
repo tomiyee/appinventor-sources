@@ -1,25 +1,25 @@
- // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2012 MIT, All rights reserved
+// -*- mode: java; c-basic-offset: 2; -*-
+// Copyright 2020 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 
 package com.google.appinventor.components.runtime;
 
-import com.google.api.client.extensions.android2.AndroidHttp;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.http.HttpTransport;
-// import com.google.api.client.http.HttpRequest;
+import static android.Manifest.permission.ACCOUNT_MANAGER;
+import static android.Manifest.permission.GET_ACCOUNTS;
+import static android.Manifest.permission.INTERNET;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-import com.google.appinventor.components.annotations.androidmanifest.ActivityElement;
-import com.google.appinventor.components.annotations.androidmanifest.IntentFilterElement;
-import com.google.appinventor.components.annotations.androidmanifest.ActionElement;
+import android.app.Activity;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
-import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
@@ -27,60 +27,21 @@ import com.google.appinventor.components.annotations.SimpleProperty;
 import com.google.appinventor.components.annotations.UsesActivities;
 import com.google.appinventor.components.annotations.UsesLibraries;
 import com.google.appinventor.components.annotations.UsesPermissions;
+import com.google.appinventor.components.annotations.androidmanifest.ActionElement;
+import com.google.appinventor.components.annotations.androidmanifest.ActivityElement;
+import com.google.appinventor.components.annotations.androidmanifest.IntentFilterElement;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.common.YaVersion;
-import com.google.appinventor.components.runtime.WebViewActivity;
-import com.google.appinventor.components.runtime.util.ClientLoginHelper;
-import com.google.appinventor.components.runtime.util.ErrorMessages;
-import com.google.appinventor.components.runtime.util.IClientLoginHelper;
-import com.google.appinventor.components.runtime.util.MediaUtil;
-import com.google.appinventor.components.runtime.util.FileUtil;
-import com.google.appinventor.components.runtime.util.AsyncCallbackPair;
 import com.google.appinventor.components.runtime.util.AsynchUtil;
-import com.google.appinventor.components.runtime.util.WebServiceUtil;
+import com.google.appinventor.components.runtime.util.MediaUtil;
 import com.google.appinventor.components.runtime.util.YailList;
-
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
-
-import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.ValueRange;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Log;
-
-import java.lang.Math;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Arrays;
-import java.util.Arrays;
-import java.net.URL;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Appinventor Google Sheets Component
@@ -91,26 +52,26 @@ import org.json.JSONObject;
     nonVisible = true,
     iconName = "images/googleSheets.png")
 @SimpleObject
-@UsesPermissions(permissionNames =
-    "android.permission.INTERNET," +
-    "android.permission.ACCOUNT_MANAGER," +
-    "android.permission.MANAGE_ACCOUNTS," +
-    "android.permission.GET_ACCOUNTS," +
-    "android.permission.USE_CREDENTIALS," +
-    "android.permission.WRITE_EXTERNAL_STORAGE," +
-    "android.permission.READ_EXTERNAL_STORAGE")
-@UsesLibraries(libraries =
-  "googlesheets.jar," +
-  "jackson-core.jar," +
-  "google-api-client.jar," +
-  "google-api-client-jackson2.jar," +
-  "google-http-client.jar," +
-  "google-http-client-jackson2.jar," +
-  "google-oauth-client.jar," +
-  "google-oauth-client-jetty.jar," +
-  "guava.jar," +
-  "jetty.jar," +
-  "jetty-util.jar")
+@UsesPermissions({
+    INTERNET,
+    ACCOUNT_MANAGER,
+    GET_ACCOUNTS,
+    WRITE_EXTERNAL_STORAGE,
+    READ_EXTERNAL_STORAGE
+})
+@UsesLibraries({
+    "googlesheets.jar",
+    "jackson-core.jar",
+    "google-api-client.jar",
+    "google-api-client-jackson2.jar",
+    "google-http-client.jar",
+    "google-http-client-jackson2.jar",
+    "google-oauth-client.jar",
+    "google-oauth-client-jetty.jar",
+    "guava.jar",
+    "jetty.jar",
+    "jetty-util.jar"
+})
 @UsesActivities(activities = {
     @ActivityElement(name = "com.google.appinventor.components.runtime.WebViewActivity",
        configChanges = "orientation|keyboardHidden",
