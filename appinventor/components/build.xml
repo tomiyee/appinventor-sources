@@ -139,7 +139,11 @@
     <copy toFile="${public.deps.dir}/httpmime.jar" file="${lib.dir}/apache-http/httpmime-4.3.4.jar" />
     <copy toFile="${public.deps.dir}/fusiontables.jar" file="${lib.dir}/fusiontables/fusiontables.jar" />
     <copy toFile="${public.deps.dir}/firebase.jar" file="${lib.dir}/firebase/firebase-client-android-2.5.0.jar" />
+    <!-- Google Sheets Component -->
     <copy toFile="${public.deps.dir}/googlesheets.jar" file="${lib.dir}/googlesheets/googlesheets.jar" />
+    <copy toFile="${public.deps.dir}/opencensus.jar" file="${lib.dir}/googlesheets/opencensus-api-0.26.0.jar" />
+    <copy toFile="${public.deps.dir}/opencensus-contrib-http-util.jar" file="${lib.dir}/googlesheets/opencensus-contrib-http-util-0.26.0.jar" />
+    <copy toFile="${public.deps.dir}/grpc-context.jar" file="${lib.dir}/googlesheets/grpc-context-1.29.0.jar" />
     <copy toFile="${public.deps.dir}/jetty.jar" file="${lib.dir}/googlesheets/jetty-6.1.26.jar" />
     <copy toFile="${public.deps.dir}/jetty-util.jar" file="${lib.dir}/googlesheets/jetty-util-6.1.26.jar" />
     <copy toFile="${public.deps.dir}/google-http-client.jar" file="${lib.dir}/oauth/google-http-client-1.35.0.jar" />
