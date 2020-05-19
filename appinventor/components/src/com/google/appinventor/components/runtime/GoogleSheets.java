@@ -13,11 +13,14 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import android.app.Activity;
+import android.os.AsyncTask;
+import android.util.Log;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
 import com.google.appinventor.components.annotations.SimpleEvent;
@@ -42,7 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
-
+import java.util.List;
 /**
  * Appinventor Google Sheets Component
  */
@@ -68,6 +71,9 @@ import java.util.Arrays;
     "google-http-client-jackson2.jar",
     "google-oauth-client.jar",
     "google-oauth-client-jetty.jar",
+    "grpc-context.jar",
+    "opencensus.jar",
+    "opencensus-contrib-http-util.jar",
     "guava.jar",
     "jetty.jar",
     "jetty-util.jar"
@@ -90,7 +96,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   // // The Scopes and the Credentials File Path.
   // private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
   // private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
-  private static final String LOG_TAG = "GOOGLE SHEETS";
+  private static final String LOG_TAG = "GOOGLESHEETS";
 
   private static final String WEBVIEW_ACTIVITY_CLASS = WebViewActivity.class
     .getName();
@@ -107,6 +113,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   private File cachedCredentialsFile = null;
   private String tokensPath;
   private String spreadsheetID = "1q0sM8BeBRL2n6EHEkkB54WbKn6pT-boChEbS3HzNe_g";
+  String APPLICATION_NAME = "Test Application";
+
 
   //   private final Activity activity;
   private final ComponentContainer container;
@@ -155,8 +163,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /* Temporary testing functions */
-  String APPLICATION_NAME = "Test Application";
-
   private Credential authorize() throws IOException {
 
     // TODO - Only change cachedCredentialsFile if credentials path is different. See FusionTables
@@ -179,31 +185,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       JacksonFactory.getDefaultInstance(), credential)
       .setApplicationName(APPLICATION_NAME)
       .build();
-  }
-
-  @SimpleFunction()
-  public String TestGet () throws IOException, GeneralSecurityException {
-
-    Sheets sheetsService = getSheetsService();
-    sheetsService.spreadsheets().values().get(spreadsheetID, "A2:B3");
-    // ValueRange readResult = sheetsService.spreadsheets().values()
-    //       .get(spreadsheetID, "A2:B3").execute();
-    return "Succ";
-    // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
-    // return "Succ";
-  }
-
-  @SimpleFunction()
-  public String TestGet2 () throws IOException, GeneralSecurityException {
-
-    Sheets sheetsService = getSheetsService();
-    // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
-    sheetsService.spreadsheets().values().get(spreadsheetID, "A2:B3").execute();
-    // ValueRange readResult = sheetsService.spreadsheets().values()
-    //       .get(spreadsheetID, "A2:B3").execute();
-    // List<List<Object>> vals = readResult.getValues();
-    // String first = String.format("%s", vals.get(0).get(0));
-    return "Succ2";
   }
 
   @SimpleEvent
@@ -309,33 +290,56 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Cell-wise Operations */
 
   @SimpleFunction
-  public void ReadCell (String sheetName, String cellReference) {
-    // 1. Check that the Cell Reference is actually a single cell
-    // 2. Asynchronously fetch the data in the cell
-
-    // 1.
-    if (!cellReference.matches("[a-zA-Z]+[0-9]+")) {
-      return;
-    }
-    // 2.
+  public void ReadCell (String sheetName, final String cellReference) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
+        Log.d(LOG_TAG, "Reading Cell: " + cellReference);
+
+        // 1. Check that the Cell Reference is actually a single cell
+        if (!cellReference.matches("[a-zA-Z]+[0-9]+")) {
+            GotCellData("Invalid Cell Reference.");
+            return;
+        }
+
+        // 2. Asynchronously fetch the data in the cell
         try {
-
-          // ... Read Cell Implementation
-          // ... End with ReadCell (YailList response)
-
-        } catch (Exception e) {
-
+          Sheets sheetsService = getSheetsService();
+          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+          ValueRange readResult = sheetsService.spreadsheets().values()
+            .get(spreadsheetID, cellReference).execute();
+          // Get the actual data from the response
+          List<List<Object>> values = readResult.getValues();
+          // If the data we got is empty, then return so.
+          if (values == null || values.isEmpty()) {
+              GotCellData("No data found.");
+          }
+          // Format the result as a string and run the call back
+          else {
+            String result = String.format("%s", values.get(0).get(0));
+            GotCellData(result);
+          }
+        }
+        // Handle Errors which may have occured while sending the Read Request!
+        catch (Exception e) {
+          e.printStackTrace();
+          GotCellData(e.getMessage());
         }
       }
     });
   }
 
   @SimpleEvent
-  public void GotCellData(YailList cellDataList) {
-    EventDispatcher.dispatchEvent(this, "ReadCell", cellDataList);
+  public void GotCellData(final String cellData) {
+    Log.d(LOG_TAG, "GotCellData got: " + cellData);
+    final GoogleSheets thisInstance = this;
+    // We need to re-enter the main thread before we can dispatch the event!
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "GotCellData", cellData);
+      }
+    });
   }
 
   @SimpleFunction

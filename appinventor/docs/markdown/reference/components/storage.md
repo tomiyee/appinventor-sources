@@ -186,7 +186,7 @@ Appinventor Google Sheets Component
 
 {:.events}
 
-{:id="GoogleSheets.GotCellData"} GotCellData(*cellDataList*{:.list})
+{:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
 : Event for GotCellData
 
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
@@ -234,12 +234,6 @@ Appinventor Google Sheets Component
 
 {:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*sheetName*{:.text},*rowNumber*{:.number})
 : Method for RemoveRow
-
-{:id="GoogleSheets.TestGet" class="method returns text"} <i/> TestGet()
-: Method for TestGet
-
-{:id="GoogleSheets.TestGet2" class="method returns text"} <i/> TestGet2()
-: Method for TestGet2
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.text})
 : Method for WriteCell
