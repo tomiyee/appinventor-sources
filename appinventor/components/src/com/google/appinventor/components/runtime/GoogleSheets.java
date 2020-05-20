@@ -148,7 +148,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     this.credentialsPath = credentialsPath;
   }
 
-
   @SimpleProperty(
     description = "The ID you can find in the URL of the Google Sheets you want to edit")
   public String spreadsheetID() {
@@ -163,7 +162,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     this.spreadsheetID = spreadsheetID;
   }
 
-  /* Temporary testing functions */
+  /* Utility Functions for Making Calls */
+
   private Credential authorize() throws IOException {
 
     // TODO - Only change cachedCredentialsFile if credentials path is different. See FusionTables
@@ -179,7 +179,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     return credential;
   }
 
-  public Sheets getSheetsService ()  throws IOException, GeneralSecurityException {
+  private Sheets getSheetsService ()  throws IOException, GeneralSecurityException {
     Credential credential = authorize();
 
     return new Sheets.Builder(new com.google.api.client.http.javanet.NetHttpTransport(),
@@ -224,25 +224,58 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Row-wise Operations */
 
   @SimpleFunction
-  public void ReadRow (String sheetName, int rowNumber) {
-    AsynchUtil.runAsynchronously(new Runnable () {
+  public void ReadRow (String sheetName, final int rowNumber) {
+    AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
+
+        Log.d(LOG_TAG, "Reading Row: " + rowNumber);
+
+        // 2. Asynchronously fetch the data in the cell
         try {
-
-          // ... Read Row Implementation
-          // ... End with ReadRow(YailList response)
-
-        } catch (Exception e) {
-          // Unforeseen Error
+          Sheets sheetsService = getSheetsService();
+          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+          ValueRange readResult = sheetsService.spreadsheets().values()
+            .get(spreadsheetID, String.format("%d:%d", rowNumber, rowNumber) ).execute();
+          // Get the actual data from the response
+          List<List<Object>> values = readResult.getValues();
+          // If the data we got is empty, then return so.
+          if (values == null || values.isEmpty()) {
+            List<String> ret = new ArrayList<String>();
+            ret.add("No data found");
+            GotRowData(ret);
+          }
+          // Format the result as a list of strings and run the callback
+          else {
+            List<String> ret = new ArrayList<String>();
+            for (Object obj : values.get(0)) {
+              ret.add(String.format("%s", obj));
+            }
+            GotRowData(ret);
+          }
+        }
+        // Handle Errors which may have occured while sending the Read Request!
+        catch (Exception e) {
+          e.printStackTrace();
+          List<String> ret = new ArrayList<String>();
+          ret.add(e.getMessage());
+          GotRowData(ret);
         }
       }
     });
   }
 
   @SimpleEvent
-  public void GotRowData (YailList rowDataList) {
-    EventDispatcher.dispatchEvent(this, "GotRowData", rowDataList);
+  public void GotRowData (final List<String> rowDataList) {
+    Log.d(LOG_TAG, "GotRowData got: " + rowDataList);
+    final GoogleSheets thisInstance = this;
+    // We need to re-enter the main thread before we can dispatch the event!
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "GotRowData", rowDataList);
+      }
+    });
   }
 
   @SimpleFunction
@@ -257,25 +290,68 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Column-wise Operations */
 
   @SimpleFunction
-  public void ReadCol (String sheetName, int colNumber) {
+  public void ReadCol (String sheetName, final int colNumber) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
+
+        // Converts the col number to the corresponding letter
+        int col = colNumber;
+        String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
+        String colReference = "";
+        while (col > 0) {
+          String digit = alphabet[(col-1) % 26];
+          colReference = digit + colReference;
+          col = (int) Math.floor((col-1) / 26);
+        }
+
+        Log.d(LOG_TAG, "Reading Col: " + colReference);
+
+        // 2. Asynchronously fetch the data in the cell
         try {
-
-          // ... Read Column Implementation
-          // ... End with ReadCol(YailList response)
-
-        } catch (Exception e) {
-          // Unforeseen Error
+          Sheets sheetsService = getSheetsService();
+          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+          ValueRange readResult = sheetsService.spreadsheets().values()
+            .get(spreadsheetID, colReference + ":" + colReference ).execute();
+          // Get the actual data from the response
+          List<List<Object>> values = readResult.getValues();
+          // If the data we got is empty, then return so.
+          if (values == null || values.isEmpty()) {
+            List<String> ret = new ArrayList<String>();
+            ret.add("No data found");
+            GotColData(ret);
+          }
+          // Format the result as a list of strings and run the callback
+          else {
+            List<String> ret = new ArrayList<String>();
+            for (List<Object> row : values) {
+              ret.add(String.format("%s", row.get(0)));
+            }
+            GotColData(ret);
+          }
+        }
+        // Handle Errors which may have occured while sending the Read Request!
+        catch (Exception e) {
+          e.printStackTrace();
+          List<String> ret = new ArrayList<String>();
+          ret.add(e.getMessage());
+          GotColData(ret);
         }
       }
     });
   }
 
   @SimpleEvent
-  public void GotColData (YailList colDataList) {
-    EventDispatcher.dispatchEvent(this, "ReadCol", colDataList);
+  public void GotColData (final List<String> colDataList) {
+    Log.d(LOG_TAG, "GotColData got: " + colDataList);
+    final GoogleSheets thisInstance = this;
+    // We need to re-enter the main thread before we can dispatch the event!
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "GotColData", colDataList);
+      }
+    });
   }
 
   @SimpleFunction
@@ -347,14 +423,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void WriteCell (String sheetName, String cellReference, String data) {}
 
   /* Range-wise Operations */
-  // TODO Always Return 2D YailLists, currently only ret 2D if correct
 
   @SimpleFunction
   public void ReadRange (String sheetName, final String rangeReference) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
-        Log.d(LOG_TAG, "Reading Cell: " + rangeReference);
+        Log.d(LOG_TAG, "Reading Range: " + rangeReference);
 
         // 1. TODO Check for valid range with regex (ex A1:B2)
         // if (!rangeReference.matches("[a-zA-Z]+[0-9]+:[a-zA-Z]+[0-9]+")) {
@@ -412,15 +487,15 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   @SimpleEvent
   public void GotRangeData (final List<List<String>> rangeData) {
 
-      Log.d(LOG_TAG, "GotCellData got: " + rangeData);
-      final GoogleSheets thisInstance = this;
-      // We need to re-enter the main thread before we can dispatch the event!
-      activity.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          EventDispatcher.dispatchEvent(thisInstance, "GotRangeData", rangeData);
-        }
-      });
+    Log.d(LOG_TAG, "GotRangeData got: " + rangeData);
+    final GoogleSheets thisInstance = this;
+    // We need to re-enter the main thread before we can dispatch the event!
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "GotRangeData", rangeData);
+      }
+    });
   }
 
   @SimpleFunction
