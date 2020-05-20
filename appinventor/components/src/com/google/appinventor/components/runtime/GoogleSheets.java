@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 /**
  * Appinventor Google Sheets Component
  */
@@ -346,34 +347,84 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void WriteCell (String sheetName, String cellReference, String data) {}
 
   /* Range-wise Operations */
+  // TODO Always Return 2D YailLists, currently only ret 2D if correct
 
   @SimpleFunction
-  public void ReadRange (String sheetName, String rangeReference) {
-    // 1. Check that it is a valid range
-    // 2. Asynchronously Fetch the data in the given range
-
+  public void ReadRange (String sheetName, final String rangeReference) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
+        Log.d(LOG_TAG, "Reading Cell: " + rangeReference);
+
+        // 1. TODO Check for valid range with regex (ex A1:B2)
+        // if (!rangeReference.matches("[a-zA-Z]+[0-9]+:[a-zA-Z]+[0-9]+")) {
+        //   List<List<String>> ret = new ArrayList<List<String>>();
+        //   ret.add(new ArrayList<String>());
+        //   ret.get(0).add("Invalid Cell Reference");
+        //   GotRangeData(ret);
+        //   return;
+        // }
+
+        // 2. Asynchronously fetch the data in the cell
         try {
+          Sheets sheetsService = getSheetsService();
+          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+          ValueRange readResult = sheetsService.spreadsheets().values()
+            .get(spreadsheetID, rangeReference).execute();
+          // Get the actual data from the response
+          List<List<Object>> values = readResult.getValues();
 
-          // ... Read Range Implementation
-          // ... End with ReadRange (YailList response)
+          // If the data we got is empty, then return so.
+          if (values == null || values.isEmpty()) {
+            List<List<String>> ret = new ArrayList<List<String>>();
+            ret.add(new ArrayList<String>());
+            ret.get(0).add("No Data Found.");
+            GotRangeData(ret);
+          }
+          // Format the result as a string and run the call back
+          else {
 
-        } catch (Exception e) {
-          // Unforeseen Error
+            List<List<String>> ret = new ArrayList<List<String>>();
+            // For every object in the result, convert it to a string
+            for (List<Object> row : values) {
+              List<String> cellRow = new ArrayList<String>();
+              for (Object cellValue : row) {
+                cellRow.add(String.format("%s", cellValue));
+              }
+              ret.add(cellRow);
+            }
+
+            GotRangeData(ret);
+          }
+        }
+        // Handle Errors which may have occured while sending the Read Request!
+        catch (Exception e) {
+          e.printStackTrace();
+          List<List<String>> ret = new ArrayList<List<String>>();
+          ret.add(new ArrayList<String>());
+          ret.get(0).add(e.getMessage());
+          GotRangeData(ret);
         }
       }
     });
   }
 
   @SimpleEvent
-  public void GotRangeData (YailList rangeDataList) {
+  public void GotRangeData (final List<List<String>> rangeData) {
 
+      Log.d(LOG_TAG, "GotCellData got: " + rangeData);
+      final GoogleSheets thisInstance = this;
+      // We need to re-enter the main thread before we can dispatch the event!
+      activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          EventDispatcher.dispatchEvent(thisInstance, "GotRangeData", rangeData);
+        }
+      });
   }
 
   @SimpleFunction
-  public void WriteRange (String sheetName, String rangeReference, YailList data) {
+  public void WriteRange (String sheetName, String rangeReference, List<List<String>> data) {
     // 1. Check that the dimensions of the YailList is the same as the Range Reference
   }
 

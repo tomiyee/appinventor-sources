@@ -192,7 +192,7 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
 : Event for GotColData
 
-{:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeDataList*{:.list})
+{:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeData*{:.list})
 : Event for GotRangeData
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
