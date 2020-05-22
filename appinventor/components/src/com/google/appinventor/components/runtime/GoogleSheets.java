@@ -20,6 +20,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
@@ -282,7 +283,37 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void WriteRow (String sheetName, int rowNumber, YailList data) {}
 
   @SimpleFunction
-  public void AddRow (String sheetName, YailList data) {}
+  public void AddRow (final String sheetName, final String range, final List<String> data) {
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+
+        try {
+          // Given the list of data to add as a row, format into a 2D row
+          List<Object> d = new ArrayList<Object>(data);
+          List<List<Object>> values = Arrays.asList(d);
+          // Formats the 2D row into the body of the request
+          ValueRange body = new ValueRange()
+            .setValues(values);
+          Sheets sheetsService = getSheetsService();
+          // Sends the append values request
+          AppendValuesResponse result =
+            sheetsService.spreadsheets().values().append(spreadsheetID, range, body)
+              .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
+              .setInsertDataOption("INSERT_ROWS") // INSERT_ROWS or OVERRIDE
+              .execute();
+
+          int numCellsAppended = result.getUpdates().getUpdatedCells();
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+        catch (GeneralSecurityException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+  }
 
   @SimpleFunction
   public void RemoveRow (String sheetName, int rowNumber) {}
