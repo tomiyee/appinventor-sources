@@ -426,7 +426,38 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void AddCol (String sheetName, YailList data) {}
 
   @SimpleFunction
-  public void RemoveCol (String sheetName, int colNumber) {}
+  public void RemoveCol (final int gridId, final int colNumber) {
+
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try{
+          Sheets sheetsService = getSheetsService();
+
+          DeleteDimensionRequest deleteRequest = new DeleteDimensionRequest()
+            .setRange(
+              new DimensionRange()
+                .setSheetId(gridId)
+                .setDimension("COLUMNS")
+                .setStartIndex(colNumber-1)
+                .setEndIndex(colNumber)
+            );
+          List<Request> requests = new ArrayList<>();
+          requests.add(new Request().setDeleteDimension(deleteRequest));
+
+          BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
+            .setRequests(requests);
+          sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+        catch (GeneralSecurityException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+  }
 
   /* Cell-wise Operations */
 
