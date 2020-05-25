@@ -232,7 +232,7 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*sheetName*{:.text},*colNumber*{:.number})
 : Method for RemoveCol
 
-{:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*sheetName*{:.text},*rowNumber*{:.number})
+{:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*gridId*{:.number},*rowNumber*{:.number})
 : Method for RemoveRow
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.text})

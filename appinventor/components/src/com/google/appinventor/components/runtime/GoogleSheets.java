@@ -21,6 +21,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
+import com.google.api.services.sheets.v4.model.DimensionRange;
+import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
@@ -287,7 +291,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
-
         try {
           // Given the list of data to add as a row, format into a 2D row
           List<Object> d = new ArrayList<Object>(data);
@@ -316,7 +319,37 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleFunction
-  public void RemoveRow (String sheetName, int rowNumber) {}
+  public void RemoveRow (final int gridId, final int rowNumber) {
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try{
+          Sheets sheetsService = getSheetsService();
+
+          DeleteDimensionRequest deleteRequest = new DeleteDimensionRequest()
+            .setRange(
+              new DimensionRange()
+                .setSheetId(gridId)
+                .setDimension("ROWS")
+                .setStartIndex(rowNumber-1)
+                .setEndIndex(rowNumber)
+            );
+          List<Request> requests = new ArrayList<>();
+          requests.add(new Request().setDeleteDimension(deleteRequest));
+
+          BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
+            .setRequests(requests);
+          sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+        catch (GeneralSecurityException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+  }
 
   /* Column-wise Operations */
 
