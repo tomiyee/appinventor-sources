@@ -419,11 +419,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleFunction
-  public void WriteCol (String sheetName, int colNumber, YailList data) {
-  }
+  public void WriteCol (String sheetName, int colNumber, YailList data) {}
 
-  @SimpleFunction
-  public void AddCol (String sheetName, YailList data) {}
+  // @SimpleFunction
+  // public void AddCol (String sheetName, YailList data) {}
 
   @SimpleFunction
   public void RemoveCol (final int gridId, final int colNumber) {
@@ -515,12 +514,42 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleFunction
-  public void WriteCell (String sheetName, String cellReference, String data) {}
+  public void WriteCell (final String sheetName, final String cellReference, final String data) {
+    // Wrap the API Call in an Async Utility
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        // Running the getSheetsService and executing the command may cause
+        // IOException's and GeneralSecurityException's
+        try {
+          Sheets sheetsService = getSheetsService();
+
+          // Form the body as a 2D list of Strings, with only one string
+          ValueRange body = new ValueRange()
+            .setValues(Arrays.asList(
+              Arrays.asList((Object)data)
+            ));
+
+          // UpdateValuesResponse result =
+          sheetsService.spreadsheets().values()
+            .update(spreadsheetID, sheetName + "!" + cellReference, body)
+            .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
+            .execute();
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+        catch (GeneralSecurityException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+  }
 
   /* Range-wise Operations */
 
   @SimpleFunction
-  public void ReadRange (String sheetName, final String rangeReference) {
+  public void ReadRange (final String sheetName, final String rangeReference) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
@@ -540,7 +569,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           Sheets sheetsService = getSheetsService();
           // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
           ValueRange readResult = sheetsService.spreadsheets().values()
-            .get(spreadsheetID, rangeReference).execute();
+            .get(spreadsheetID, sheetName + "!" + rangeReference).execute();
           // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
 

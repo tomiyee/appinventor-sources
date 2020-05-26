@@ -205,9 +205,6 @@ Appinventor Google Sheets Component
 
 {:.methods}
 
-{:id="GoogleSheets.AddCol" class="method"} <i/> AddCol(*sheetName*{:.text},*data*{:.list})
-: Method for AddCol
-
 {:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*range*{:.text},*data*{:.list})
 : Method for AddRow
 
