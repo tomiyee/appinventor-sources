@@ -198,9 +198,6 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
 : Event for GotRowData
 
-{:id="GoogleSheets.GotText"} GotText(*response*{:.text})
-: Event for GotText
-
 ### Methods  {#GoogleSheets-Methods}
 
 {:.methods}

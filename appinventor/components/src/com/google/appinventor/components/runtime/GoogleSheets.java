@@ -193,12 +193,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       .build();
   }
 
-  @SimpleEvent
-  public void GotText(String response) {
-    EventDispatcher.dispatchEvent(this, "GotText", response);
-  }
-
-
   /* Helper Functions for the User */
 
   @SimpleFunction(
@@ -229,26 +223,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Row-wise Operations */
 
   @SimpleFunction
-  public void ReadRow (String sheetName, final int rowNumber) {
+  public void ReadRow (final String sheetName, final int rowNumber) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
-
         Log.d(LOG_TAG, "Reading Row: " + rowNumber);
 
         // 2. Asynchronously fetch the data in the cell
         try {
           Sheets sheetsService = getSheetsService();
-          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+
           ValueRange readResult = sheetsService.spreadsheets().values()
-            .get(spreadsheetID, String.format("%d:%d", rowNumber, rowNumber) ).execute();
+            .get(spreadsheetID, String.format("%s!%d:%d", sheetName, rowNumber, rowNumber) ).execute();
           // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
           // If the data we got is empty, then return so.
           if (values == null || values.isEmpty()) {
-            List<String> ret = new ArrayList<String>();
-            ret.add("No data found");
-            GotRowData(ret);
+            GotRowData(Arrays.asList("No data found"));
           }
           // Format the result as a list of strings and run the callback
           else {
@@ -260,11 +251,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
         }
         // Handle Errors which may have occured while sending the Read Request!
-        catch (Exception e) {
+        catch (IOException e) {
           e.printStackTrace();
-          List<String> ret = new ArrayList<String>();
-          ret.add(e.getMessage());
-          GotRowData(ret);
+          GotColData(Arrays.asList(e.getMessage()));
+        }
+        catch (GeneralSecurityException e) {
+          e.printStackTrace();
+          GotColData(Arrays.asList(e.getMessage()));
         }
       }
     });
@@ -293,8 +286,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       public void run () {
         try {
           // Given the list of data to add as a row, format into a 2D row
-          List<Object> d = new ArrayList<Object>(data);
-          List<List<Object>> values = Arrays.asList(d);
+          List<List<Object>> values = Arrays.asList(new ArrayList<Object>(data));
+          
           // Formats the 2D row into the body of the request
           ValueRange body = new ValueRange()
             .setValues(values);
@@ -354,7 +347,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Column-wise Operations */
 
   @SimpleFunction
-  public void ReadCol (String sheetName, final int colNumber) {
+  public void ReadCol (final String sheetName, final int colNumber) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
@@ -376,14 +369,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           Sheets sheetsService = getSheetsService();
           // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
           ValueRange readResult = sheetsService.spreadsheets().values()
-            .get(spreadsheetID, colReference + ":" + colReference ).execute();
+            .get(spreadsheetID, sheetName + "!" + colReference + ":" + colReference).execute();
           // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
           // If the data we got is empty, then return so.
           if (values == null || values.isEmpty()) {
-            List<String> ret = new ArrayList<String>();
-            ret.add("No data found");
-            GotColData(ret);
+            GotColData(Arrays.asList("No data found"));
           }
           // Format the result as a list of strings and run the callback
           else {
@@ -395,11 +386,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
         }
         // Handle Errors which may have occured while sending the Read Request!
-        catch (Exception e) {
+        catch (IOException e) {
           e.printStackTrace();
-          List<String> ret = new ArrayList<String>();
-          ret.add(e.getMessage());
-          GotColData(ret);
+          GotColData(Arrays.asList(e.getMessage()));
+        }
+        catch (GeneralSecurityException e) {
+          e.printStackTrace();
+          GotColData(Arrays.asList(e.getMessage()));
         }
       }
     });
@@ -461,7 +454,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Cell-wise Operations */
 
   @SimpleFunction
-  public void ReadCell (String sheetName, final String cellReference) {
+  public void ReadCell (final String sheetName, final String cellReference) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
@@ -478,7 +471,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           Sheets sheetsService = getSheetsService();
           // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
           ValueRange readResult = sheetsService.spreadsheets().values()
-            .get(spreadsheetID, cellReference).execute();
+            .get(spreadsheetID, sheetName + "!" + cellReference).execute();
           // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
           // If the data we got is empty, then return so.
@@ -492,7 +485,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
         }
         // Handle Errors which may have occured while sending the Read Request!
-        catch (Exception e) {
+        catch (IOException e) {
+          e.printStackTrace();
+          GotCellData(e.getMessage());
+        }
+        catch (GeneralSecurityException e) {
           e.printStackTrace();
           GotCellData(e.getMessage());
         }
