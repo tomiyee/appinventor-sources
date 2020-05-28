@@ -200,15 +200,16 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "to the reference strings used in Google Sheets. For example, " +
       "row 1 and col 2 corresponds to the string \"B1\".")
   public String GetCellReference(int row, int col) {
-    String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
-    String result = "";
+    String[] alphabet = {
+      "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
+      "S","T","U","V","W","X","Y","Z"};
+    String colRange = "";
     while (col > 0) {
       String digit = alphabet[(col-1) % 26];
-      result = digit + result;
+      colRange = digit + colRange;
       col = (int) Math.floor((col-1) / 26);
     }
-    result = result + Integer.toString(row);
-    return result;
+    return colRange + Integer.toString(row);
   }
 
   @SimpleFunction(
@@ -222,25 +223,30 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Row-wise Operations */
 
-  @SimpleFunction
-  public void ReadRow (final String sheetName, final int rowNumber) {
+  @SimpleFunction(
+    description="On the sheet with the provided sheet name, this method will " +
+      "read the row with the given number and returns the text that is found " +
+      "in each cell.")
+  public void ReadRow (String sheetName, int rowNumber) {
+    Log.d(LOG_TAG, "Reading Row: " + rowNumber);
+    // Properly format the Range Reference
+    final String rangeReference = sheetName +  "!" + rowNumber + ":" + rowNumber;
+
+    // Asynchronously fetch the data in the cell
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
-        Log.d(LOG_TAG, "Reading Row: " + rowNumber);
-
-        // 2. Asynchronously fetch the data in the cell
         try {
           Sheets sheetsService = getSheetsService();
 
           ValueRange readResult = sheetsService.spreadsheets().values()
-            .get(spreadsheetID, String.format("%s!%d:%d", sheetName, rowNumber, rowNumber) ).execute();
+            .get(spreadsheetID, rangeReference ).execute();
           // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
           // If the data we got is empty, then return so.
-          if (values == null || values.isEmpty()) {
+          if (values == null || values.isEmpty())
             GotRowData(Arrays.asList("No data found"));
-          }
+
           // Format the result as a list of strings and run the callback
           else {
             List<String> ret = new ArrayList<String>();
@@ -280,27 +286,28 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void WriteRow (String sheetName, int rowNumber, YailList data) {}
 
   @SimpleFunction
-  public void AddRow (final String sheetName, final String range, final List<String> data) {
+  public void AddRow (String sheetName, String range, List<Object> data) {
+    // Properly format the range
+    final String rangeRef = sheetName + "!" + range;
+
+    // Given the list of data to add as a row, format into a 2D row
+    List<List<Object>> values = Arrays.asList(data);
+    final ValueRange body = new ValueRange()
+      .setValues(values);
+
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
         try {
-          // Given the list of data to add as a row, format into a 2D row
-          List<List<Object>> values = Arrays.asList(new ArrayList<Object>(data));
-          
-          // Formats the 2D row into the body of the request
-          ValueRange body = new ValueRange()
-            .setValues(values);
           Sheets sheetsService = getSheetsService();
           // Sends the append values request
-          AppendValuesResponse result =
-            sheetsService.spreadsheets().values().append(spreadsheetID, range, body)
-              .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
-              .setInsertDataOption("INSERT_ROWS") // INSERT_ROWS or OVERRIDE
-              .execute();
-
-          int numCellsAppended = result.getUpdates().getUpdatedCells();
+          sheetsService.spreadsheets().values()
+            .append(spreadsheetID, rangeRef, body)
+            .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
+            .setInsertDataOption("INSERT_ROWS") // INSERT_ROWS or OVERRIDE
+            .execute();
         }
+        // Catch the two exceptions
         catch (IOException e) {
           e.printStackTrace();
         }
@@ -347,41 +354,41 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Column-wise Operations */
 
   @SimpleFunction
-  public void ReadCol (final String sheetName, final int colNumber) {
+  public void ReadCol (String sheetName, int colNumber) {
+    // Converts the col number to the corresponding letter
+    String[] alphabet = {
+      "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
+      "S","T","U","V","W","X","Y","Z"};
+    String colReference = "";
+    while (colNumber > 0) {
+      String digit = alphabet[(colNumber-1) % 26];
+      colReference = digit + colReference;
+      colNumber = (int) Math.floor((colNumber-1) / 26);
+    }
+    final String rangeRef = sheetName + "!" + colReference + ":" + colReference;
+    // Quick log to summaraize what we are trying to do
+    Log.d(LOG_TAG, "Reading Col: " + rangeRef);
+
+    // Asynchronously fetch the data in the cell and trigger the callback
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
-
-        // Converts the col number to the corresponding letter
-        int col = colNumber;
-        String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
-        String colReference = "";
-        while (col > 0) {
-          String digit = alphabet[(col-1) % 26];
-          colReference = digit + colReference;
-          col = (int) Math.floor((col-1) / 26);
-        }
-
-        Log.d(LOG_TAG, "Reading Col: " + colReference);
-
-        // 2. Asynchronously fetch the data in the cell
         try {
           Sheets sheetsService = getSheetsService();
-          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+
           ValueRange readResult = sheetsService.spreadsheets().values()
-            .get(spreadsheetID, sheetName + "!" + colReference + ":" + colReference).execute();
+            .get(spreadsheetID, rangeRef).execute();
           // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
           // If the data we got is empty, then return so.
-          if (values == null || values.isEmpty()) {
+          if (values == null || values.isEmpty())
             GotColData(Arrays.asList("No data found"));
-          }
+
           // Format the result as a list of strings and run the callback
           else {
             List<String> ret = new ArrayList<String>();
-            for (List<Object> row : values) {
+            for (List<Object> row : values)
               ret.add(String.format("%s", row.get(0)));
-            }
             GotColData(ret);
           }
         }
@@ -469,7 +476,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         // 2. Asynchronously fetch the data in the cell
         try {
           Sheets sheetsService = getSheetsService();
-          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, sheetName + "!" + cellReference).execute();
           // Get the actual data from the response
@@ -512,6 +518,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleFunction
   public void WriteCell (final String sheetName, final String cellReference, final String data) {
+
+
     // Wrap the API Call in an Async Utility
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override

@@ -670,6 +670,123 @@ Blockly.Drawer.defaultBlockXMLStrings = {
          Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
          '<value name="ARG1"><block type="text"><field name="TEXT">MM/dd/yyyy hh:mm:ss a</field></block></value>' +
          '</block>' +
-         '</xml>';}}
+         '</xml>';}},
+
+    // GoogleSheets.Read methods default to reading from "Sheet1"
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadRow"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadCol"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadCell"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadRange"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+
+    // GoogleSheets.Write methods default to writing to "Sheet1"
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"WriteRow"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"WriteCol"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"WriteCell"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"WriteRange"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+
+    // GoogleSheets.AddRow defaults to adding to "Sheet1"
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadRange"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+
+
+
   ]
 };

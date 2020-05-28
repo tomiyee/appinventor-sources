@@ -221,7 +221,7 @@ Appinventor Google Sheets Component
 : Method for ReadRange
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
-: Method for ReadRow
+: On the sheet with the provided sheet name, this method will read the row with the given number and returns the text that is found in each cell.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
 : Method for RemoveCol
