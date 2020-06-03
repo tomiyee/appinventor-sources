@@ -186,24 +186,27 @@ Appinventor Google Sheets Component
 
 {:.events}
 
+{:id="GoogleSheets.ErrorOccurred"} ErrorOccurred(*errorMessage*{:.text})
+: Event for ErrorOccurred
+
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
-: Event for GotCellData
+: WIP
 
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
-: Event for GotColData
+: WIP
 
 {:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeData*{:.list})
-: Event for GotRangeData
+: The data from the ReadRange function.
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
-: Event for GotRowData
+: WIP
 
 ### Methods  {#GoogleSheets-Methods}
 
 {:.methods}
 
 {:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*range*{:.text},*data*{:.list})
-: Method for AddRow
+: WIP
 
 {:id="GoogleSheets.GetCellReference" class="method returns text"} <i/> GetCellReference(*row*{:.number},*col*{:.number})
 : Converts the integer representation of rows and columns to the reference strings used in Google Sheets. For example, row 1 and col 2 corresponds to the string "B1".
@@ -212,34 +215,31 @@ Appinventor Google Sheets Component
 : Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
 
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
-: Method for ReadCell
+: WIP
 
 {:id="GoogleSheets.ReadCol" class="method"} <i/> ReadCol(*sheetName*{:.text},*colNumber*{:.number})
-: Method for ReadCol
+: WIP
 
 {:id="GoogleSheets.ReadRange" class="method"} <i/> ReadRange(*sheetName*{:.text},*rangeReference*{:.text})
-: Method for ReadRange
+: Reads the range in the Google Sheets. Result goes to GotRangeData
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
 : On the sheet with the provided sheet name, this method will read the row with the given number and returns the text that is found in each cell.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
-: Method for RemoveCol
+: WIP
 
 {:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*gridId*{:.number},*rowNumber*{:.number})
-: Method for RemoveRow
+: WIP
 
-{:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.text})
-: Method for WriteCell
-
-{:id="GoogleSheets.WriteCol" class="method"} <i/> WriteCol(*sheetName*{:.text},*colNumber*{:.number},*data*{:.list})
-: Method for WriteCol
+{:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.any})
+: Writes the provided data to the cell.
 
 {:id="GoogleSheets.WriteRange" class="method"} <i/> WriteRange(*sheetName*{:.text},*rangeReference*{:.text},*data*{:.list})
-: Method for WriteRange
+: Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.
 
 {:id="GoogleSheets.WriteRow" class="method"} <i/> WriteRow(*sheetName*{:.text},*rowNumber*{:.number},*data*{:.list})
-: Method for WriteRow
+: WIP
 
 ## TinyDB  {#TinyDB}
 
