@@ -271,7 +271,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           List<List<Object>> values = readResult.getValues();
           // If the data we got is empty, then return so.
           if (values == null || values.isEmpty())
-            GotRowData(Arrays.asList("No data found"));
+            ErrorOccurred("ReadRow: No data found");
 
           // Format the result as a list of strings and run the callback
           else {
@@ -283,15 +283,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
         }
         // Handle Errors which may have occured while sending the Read Request!
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          GotColData(Arrays.asList(e.getMessage()));
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          GotColData(Arrays.asList(e.getMessage()));
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("ReadRow: " + e.getMessage());
         }
       }
     });
@@ -343,14 +337,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           update.setValueInputOption("USER_ENTERED");
           update.execute();
         }
-        // Catch the two kinds of exceptions
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("WriteRow: " + e.getMessage());
         }
       }
     });
@@ -379,14 +368,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .setInsertDataOption("INSERT_ROWS") // INSERT_ROWS or OVERRIDE
             .execute();
         }
-        // Catch the two exceptions
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("AddRow: " + e.getMessage());
         }
       }
     });
@@ -416,13 +400,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
         }
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("RemoveRow: " + e.getMessage());
         }
       }
     });
@@ -433,6 +413,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   // (TODO) Add Description
   @SimpleFunction(description="WIP")
   public void ReadCol (String sheetName, int colNumber) {
+
     // Converts the col number to the corresponding letter
     String[] alphabet = {
       "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
@@ -444,8 +425,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       colNumber = (int) Math.floor((colNumber-1) / 26);
     }
     final String rangeRef = sheetName + "!" + colReference + ":" + colReference;
-    // Quick log to summaraize what we are trying to do
-    Log.d(LOG_TAG, "Reading Col: " + rangeRef);
 
     // Asynchronously fetch the data in the cell and trigger the callback
     AsynchUtil.runAsynchronously(new Runnable() {
@@ -456,29 +435,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, rangeRef).execute();
-          // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
-          // If the data we got is empty, then return so.
-          if (values == null || values.isEmpty())
-            GotColData(Arrays.asList("No data found"));
-            // (TODO) Send Error Message to ErrorOccurred
+
+          // If the data we got is empty, then throw an error
+          if (values == null || values.isEmpty()) {
+            ErrorOccurred("ReadCol: No data found.");
+            return;
+          }
 
           // Format the result as a list of strings and run the callback
-          else {
-            List<String> ret = new ArrayList<String>();
-            for (List<Object> row : values)
-              ret.add(String.format("%s", row.get(0)));
-            GotColData(ret);
-          }
+          List<String> ret = new ArrayList<String>();
+          for (List<Object> row : values)
+            ret.add(String.format("%s", row.get(0)));
+          GotColData(ret);
         }
-        // Handle Errors which may have occured while sending the Read Request!
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("ReadCol: " + e.getMessage());
         }
       }
     });
@@ -523,13 +496,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
         }
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("RemoveCol: " + e.getMessage());
         }
       }
     });
@@ -540,45 +509,39 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   // (TODO) Add Description
   @SimpleFunction(description="WIP")
   public void ReadCell (final String sheetName, final String cellReference) {
+
+    // 1. Check that the Cell Reference is actually a single cell
+    if (!cellReference.matches("[a-zA-Z]+[0-9]+")) {
+      ErrorOccurred("ReadCell: Invalid Cell Reference");
+      return;
+    }
+
+    // 2. Asynchronously fetch the data in the cell
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
         Log.d(LOG_TAG, "Reading Cell: " + cellReference);
 
-        // 1. Check that the Cell Reference is actually a single cell
-        if (!cellReference.matches("[a-zA-Z]+[0-9]+")) {
-            GotCellData("Invalid Cell Reference.");
-            return;
-        }
-
-        // 2. Asynchronously fetch the data in the cell
         try {
           Sheets sheetsService = getSheetsService();
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, sheetName + "!" + cellReference).execute();
-          // Get the actual data from the response
           List<List<Object>> values = readResult.getValues();
+
           // If the data we got is empty, then return so.
           if (values == null || values.isEmpty()) {
-              GotCellData("No data found.");
-              // (TODO) Send Error Message to ErrorOccurred
+            ErrorOccurred("ReadCell: No data found");
+            return;
           }
+
           // Format the result as a string and run the call back
-          else {
-            String result = String.format("%s", values.get(0).get(0));
-            GotCellData(result);
-          }
+          String result = String.format("%s", values.get(0).get(0));
+          GotCellData(result);
         }
-        // Handle Errors which may have occured while sending the Read Request!
-        catch (IOException e) {
+        // Handle Errors which may have occured while sending the Read Request
+        catch (Exception e) {
           e.printStackTrace();
-          GotCellData(e.getMessage());
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          GotCellData(e.getMessage());
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("ReadCell: " + e.getMessage());
         }
       }
     });
@@ -608,7 +571,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         Arrays.asList(data)
       ));
     Log.d(LOG_TAG, "Writing Cell: " + rangeRef);
-    Log.d(LOG_TAG, "Cell Value: " + data);
+
     // Wrap the API Call in an Async Utility
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
@@ -624,13 +587,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .execute();
         }
         // Catch the two kinds of exceptions
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("WriteCell: " + e.getMessage());
         }
       }
     });
@@ -659,8 +618,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
           // No Data Found
           if (values == null || values.isEmpty()) {
-            Log.d(LOG_TAG, "ReadRange found no data.");
-            // (TODO) Send Error Message to Error Block
+            ErrorOccurred("ReadRange: No data found.");
             return;
           }
           // Format the result as a string and run the call back
@@ -679,7 +637,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         // Handle Errors which may have occured while sending the Read Request!
         catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("ReadRange: " + e.getMessage());
         }
       }
     });
@@ -704,27 +662,37 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     "reference must match the dimensions of the 2D list provided in data.")
   public void WriteRange (String sheetName, String rangeReference, YailList data) {
 
-    // (TODO) Check that the range reference is in A1 format
+    // (TODO) Check that the range reference is in A1 notatoin
 
     // Generates the A1 Reference for the operation
     final String rangeRef = sheetName + "!" + rangeReference;
     Log.d(LOG_TAG, "Writing Range: " + rangeRef);
-    // Generates the body, which are the values to assign to the range
 
+    // Generates the body, which are the values to assign to the range
     List<List<Object>> values = new ArrayList<>();
+    int cols = -1;
     for (Object elem : (LList) data.getCdr()) {
-      if (elem instanceof YailList) {
-        YailList row = (YailList) elem;
-        List<Object> r = new ArrayList<Object>();
-        for (Object o : (LList) row.getCdr()) {
-          r.add(o);
-        }
-        values.add(r);
+      if (!(elem instanceof YailList))
+        continue;
+      YailList row = (YailList) elem;
+      // construct the row that we will add to the list of rows
+      List<Object> r = new ArrayList<Object>();
+      for (Object o : (LList) row.getCdr())
+        r.add(o);
+      values.add(r);
+      // Catch rows of unequal length
+      if (cols == -1) cols = r.size();
+      if (r.size() != cols) {
+        ErrorOccurred("WriteRange: Rows must have the same length");
+        return;
       }
     }
 
-    // (TODO) Check that values has at least 1 row
-    // (TODO) Check that every row in data has the same number of objects
+    // Check that values has at least 1 row
+    if (values.size() == 0) {
+      ErrorOccurred("WriteRange: Data must be a list of lists.");
+      return;
+    }
 
     final ValueRange body = new ValueRange()
       .setValues(values);
@@ -733,24 +701,17 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
-        // Surround the operation with a try catch statement
         try {
           Sheets sheetsService = getSheetsService();
           // UpdateValuesResponse result =
-          Sheets.Spreadsheets.Values.Update update = sheetsService.spreadsheets().values()
-            .update(spreadsheetID, rangeRef, body);
-          update.setValueInputOption("USER_ENTERED"); // USER_ENTERED or RAW
-          Log.d(LOG_TAG, "Json: " + update.toString());
-          update.execute();
+          sheetsService.spreadsheets().values()
+            .update(spreadsheetID, rangeRef, body)
+            .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
+            .execute();
         }
-        // Catch the two kinds of exceptions
-        catch (IOException e) {
+        catch (Exception e) {
           e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
-        }
-        catch (GeneralSecurityException e) {
-          e.printStackTrace();
-          // (TODO) Send Error Message to ErrorOccurred
+          ErrorOccurred("WriteRange: " + e.getMessage());
         }
       }
     });
