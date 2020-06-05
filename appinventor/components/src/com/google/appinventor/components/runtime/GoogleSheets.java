@@ -137,7 +137,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     return apiKey;
   }
 
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
+  @DesignerProperty(
+    editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
     defaultValue = "")
   @SimpleProperty
   public void ApiKey(String apiKey) {
@@ -150,7 +151,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     return credentialsPath;
   }
 
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_ASSET,
+  @DesignerProperty(
+    editorType = PropertyTypeConstants.PROPERTY_TYPE_ASSET,
     defaultValue = "")
   @SimpleProperty
   public void credentialsJson (String credentialsPath) {
@@ -163,10 +165,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     return spreadsheetID;
   }
 
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
+  @DesignerProperty(
+    editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
     defaultValue = "")
-  @SimpleProperty(description="The ID for the Google Sheets file you want to edit. " +
-    "You can find the spreadsheetID in the URL of the Google Sheets file.")
+  @SimpleProperty(
+    description="The ID for the Google Sheets file you want to edit. You can " +
+      "find the spreadsheetID in the URL of the Google Sheets file.")
   public void spreadsheetID(String spreadsheetID) {
     this.spreadsheetID = spreadsheetID;
   }
@@ -199,8 +203,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Error Catching Handler */
 
-  // (TODO) Add Description
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event block is triggered whenever an API call encounters " +
+      "an error. Text with details about the error can be found in `errorMessage`")
   public void ErrorOccurred (final String errorMessage) {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -214,9 +219,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Helper Functions for the User */
 
   @SimpleFunction(
-    description="Converts the integer representation of rows and columns " +
-      "to the reference strings used in Google Sheets. For example, " +
-      "row 1 and col 2 corresponds to the string \"B1\".")
+    description="Converts the integer representation of rows and columns to " +
+      "the reference strings used in Google Sheets. For example, row 1 and " +
+      "col 2 corresponds to the string \"B1\".")
   public String GetCellReference(int row, int col) {
     String[] alphabet = {
       "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
@@ -291,8 +296,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleEvent(description="WIP")
+  @SimpleEvent(
+    description="After calling the ReadRow method, the data in the row will " +
+      "be stored as a list of text values in rowDataList.")
   public void GotRowData (final List<String> rowDataList) {
     Log.d(LOG_TAG, "GotRowData got: " + rowDataList);
     final GoogleSheets thisInstance = this;
@@ -305,8 +311,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleFunction(description="WIP")
+  @SimpleFunction(
+    description="Given a list of values as `data`, this method will write the " +
+      "values to the row of the sheet. It will always start from the left most " +
+      "column and continue to the right. If there are alreaddy values in that " +
+      "row, this method will override them with the new data. It will not " +
+      "erase the entire row.")
   public void WriteRow (String sheetName, int rowNumber, YailList data) {
 
     // Generates the A1 Reference for the operation
@@ -345,17 +355,17 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleFunction(description="WIP")
-  public void AddRow (String sheetName, String range, List<Object> data) {
+  @SimpleFunction(
+    description="Given a list of values as `data`, this method will write the " +
+      "values to the next empty row in the sheet with the provided sheetName. ")
+  public void AddRow (String sheetName, List<Object> data) {
     // Properly format the range
-    final String rangeRef = sheetName + "!" + range;
-
+    final String rangeRef = sheetName + "!A1";
     // Given the list of data to add as a row, format into a 2D row
     List<List<Object>> values = Arrays.asList(data);
     final ValueRange body = new ValueRange()
       .setValues(values);
-
+    // Run the API call asynchronously
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
       public void run () {
@@ -376,8 +386,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleFunction(description="WIP")
+  @SimpleFunction(
+    description="Deletes the row with the given row number (1-indexed) from " +
+      "the sheets page with the grid ID `gridId`. This does not clear the row, " +
+      "but removes it entirely. The sheet's grid id can be found at the " +
+      "end of the url of the Google Sheets document, right after the `gid=`.")
   public void RemoveRow (final int gridId, final int rowNumber) {
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
@@ -410,8 +423,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Column-wise Operations */
 
-  // (TODO) Add Description
-  @SimpleFunction(description="WIP")
+  @SimpleFunction(
+    description="Begins an API call which will request the data stored in the " +
+      "column with the provided `colNumber` (1-indexed). The resulting data " +
+      "will be sent to the GotColData event block.")
   public void ReadCol (String sheetName, int colNumber) {
 
     // Converts the col number to the corresponding letter
@@ -457,8 +472,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleEvent(description="WIP")
+  @SimpleEvent(
+    description="After calling the ReadCol method, the data in the column will " +
+      "be stored as a list of text values in `colDataList`.")
   public void GotColData (final List<String> colDataList) {
     Log.d(LOG_TAG, "GotColData got: " + colDataList);
     final GoogleSheets thisInstance = this;
@@ -471,8 +487,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleFunction(description="WIP")
+  @SimpleFunction(
+  description="Deletes the column with the given column number (1-indexed) " +
+    "from the sheets page with the grid ID `gridId`. This does not clear the " +
+    "column, but removes it entirely. The sheet's grid id can be found at the " +
+    "end of the url of the Google Sheets document, right after the `gid=`.")
   public void RemoveCol (final int gridId, final int colNumber) {
 
     AsynchUtil.runAsynchronously(new Runnable() {
@@ -506,8 +525,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Cell-wise Operations */
 
-  // (TODO) Add Description
-  @SimpleFunction(description="WIP")
+  @SimpleFunction(
+    description="Begins an API call which will request the data stored in the " +
+      "cell with the provided cell reference. This cell reference can be the " +
+      "result of the getCellReference block, or a text block with the correct " +
+      "A1 notation. The resulting cell data will be sent to the GotCellData " +
+      "event block.")
   public void ReadCell (final String sheetName, final String cellReference) {
 
     // 1. Check that the Cell Reference is actually a single cell
@@ -547,8 +570,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  // (TODO) Add Description
-  @SimpleEvent(description="WIP")
+  @SimpleEvent(
+    description="After calling the ReadCell method, the data in the cell will " +
+      "be stored as text in `cellData`.")
   public void GotCellData(final String cellData) {
     Log.d(LOG_TAG, "GotCellData got: " + cellData);
     final GoogleSheets thisInstance = this;
@@ -561,7 +585,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleFunction(description="Writes the provided data to the cell.")
+  @SimpleFunction(
+    description="Assigns the text in `data` to the cell at the provided cell " +
+      "reference. If there is already a value in this range, the old value " +
+      "be overriden by the new text.")
   public void WriteCell (String sheetName, String cellReference, Object data) {
     // Generates the A1 Reference for the operation
     final String rangeRef = sheetName + "!" + cellReference;
@@ -597,7 +624,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Range-wise Operations */
 
-  @SimpleFunction(description="Reads the range in the Google Sheets. Result goes to GotRangeData")
+  @SimpleFunction(
+    description="Begins an API call which will request the data stored in the " +
+      "range with the provided range reference. This range reference can be " +
+      "the result of the getRangeReference block, or a text block with the " +
+      "correct A1 notation. The resulting range data will be sent to the " +
+      "GotRangeData event block.")
   public void ReadRange (final String sheetName, final String rangeReference) {
 
     // (TODO) Check if the rangeReference is a valid A1 Format
@@ -643,7 +675,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="The data from the ReadRange function.")
+  @SimpleEvent(
+    description="After calling the ReadRange method, the data in the range will " +
+      "be stored as a list of rows, where every row is another list of text, in " +
+      "`rangeData`.")
   public void GotRangeData (final List<List<String>> rangeData) {
     Log.d(LOG_TAG, "GotRangeData got: " + rangeData);
     final GoogleSheets thisInstance = this;
@@ -658,8 +693,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleFunction(
     description="Assigns the values in the data value, which is a list of lists, " +
-    "to the range that you specify. The number of rows and columns in the range " +
-    "reference must match the dimensions of the 2D list provided in data.")
+      "to the range that you specify. The number of rows and columns in the range " +
+      "reference must match the dimensions of the 2D list provided in data.")
   public void WriteRange (String sheetName, String rangeReference, YailList data) {
 
     // (TODO) Check that the range reference is in A1 notatoin

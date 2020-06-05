@@ -187,26 +187,26 @@ Appinventor Google Sheets Component
 {:.events}
 
 {:id="GoogleSheets.ErrorOccurred"} ErrorOccurred(*errorMessage*{:.text})
-: Event for ErrorOccurred
+: This event block is triggered whenever an API call encounters an error. Text with details about the error can be found in `errorMessage`
 
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
-: WIP
+: After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.
 
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
-: WIP
+: After calling the ReadCol method, the data in the column will be stored as a list of text values in `colDataList`.
 
 {:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeData*{:.list})
-: The data from the ReadRange function.
+: After calling the ReadRange method, the data in the range will be stored as a list of rows, where every row is another list of text, in `rangeData`.
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
-: WIP
+: After calling the ReadRow method, the data in the row will be stored as a list of text values in rowDataList.
 
 ### Methods  {#GoogleSheets-Methods}
 
 {:.methods}
 
-{:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*range*{:.text},*data*{:.list})
-: WIP
+{:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*data*{:.list})
+: Given a list of values as `data`, this method will write the values to the next empty row in the sheet with the provided sheetName.
 
 {:id="GoogleSheets.GetCellReference" class="method returns text"} <i/> GetCellReference(*row*{:.number},*col*{:.number})
 : Converts the integer representation of rows and columns to the reference strings used in Google Sheets. For example, row 1 and col 2 corresponds to the string "B1".
@@ -215,31 +215,31 @@ Appinventor Google Sheets Component
 : Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
 
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
-: WIP
+: Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.
 
 {:id="GoogleSheets.ReadCol" class="method"} <i/> ReadCol(*sheetName*{:.text},*colNumber*{:.number})
-: WIP
+: Begins an API call which will request the data stored in the column with the provided `colNumber` (1-indexed). The resulting data will be sent to the GotColData event block.
 
 {:id="GoogleSheets.ReadRange" class="method"} <i/> ReadRange(*sheetName*{:.text},*rangeReference*{:.text})
-: Reads the range in the Google Sheets. Result goes to GotRangeData
+: Begins an API call which will request the data stored in the range with the provided range reference. This range reference can be the result of the getRangeReference block, or a text block with the correct A1 notation. The resulting range data will be sent to the GotRangeData event block.
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
 : On the sheet with the provided sheet name, this method will read the row with the given number and returns the text that is found in each cell.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
-: WIP
+: Deletes the column with the given column number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the column, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.
 
 {:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*gridId*{:.number},*rowNumber*{:.number})
-: WIP
+: Deletes the row with the given row number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the row, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.any})
-: Writes the provided data to the cell.
+: Assigns the text in `data` to the cell at the provided cell reference. If there is already a value in this range, the old value be overriden by the new text.
 
 {:id="GoogleSheets.WriteRange" class="method"} <i/> WriteRange(*sheetName*{:.text},*rangeReference*{:.text},*data*{:.list})
 : Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.
 
 {:id="GoogleSheets.WriteRow" class="method"} <i/> WriteRow(*sheetName*{:.text},*rowNumber*{:.number},*data*{:.list})
-: WIP
+: Given a list of values as `data`, this method will write the values to the row of the sheet. It will always start from the left most column and continue to the right. If there are alreaddy values in that row, this method will override them with the new data. It will not erase the entire row.
 
 ## TinyDB  {#TinyDB}
 
