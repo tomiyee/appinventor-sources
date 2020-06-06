@@ -773,7 +773,7 @@ Blockly.Drawer.defaultBlockXMLStrings = {
     }},
 
     // GoogleSheets.AddRow defaults to adding to "Sheet1"
-    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadRange"},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"AddRow"},
     mutatorXMLStringFunction: function(mutatorAttributes) {
       return (
         '<xml>' +
