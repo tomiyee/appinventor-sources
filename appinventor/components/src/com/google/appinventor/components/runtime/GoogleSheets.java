@@ -122,28 +122,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   private String credentialsPath;
   private File cachedCredentialsFile = null;
   private String tokensPath;
-  private String spreadsheetID = "1q0sM8BeBRL2n6EHEkkB54WbKn6pT-boChEbS3HzNe_g";
-  String APPLICATION_NAME = "Test Application";
-
+  private String spreadsheetID = "";
+  // (TODO) set application name to be the name of the project
+  private String APPLICATION_NAME = "Test Application";
 
   //   private final Activity activity;
   private final ComponentContainer container;
   private final Activity activity;
-
-  //   private final IClientLoginHelper requestHelper;
-  @SimpleProperty(
-    description = "API Key")
-  public String ApiKey() {
-    return apiKey;
-  }
-
-  @DesignerProperty(
-    editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
-    defaultValue = "")
-  @SimpleProperty
-  public void ApiKey(String apiKey) {
-    this.apiKey = apiKey;
-  }
 
   @SimpleProperty(
     description = "The Credentials JSON file")
@@ -180,7 +165,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   private Credential authorize() throws IOException {
 
     // TODO - Only change cachedCredentialsFile if credentials path is different. See FusionTables
-    cachedCredentialsFile = MediaUtil.copyMediaToTempFile(container.$form(), this.credentialsPath);
+    if (cachedCredentialsFile == null) {
+      cachedCredentialsFile = MediaUtil.copyMediaToTempFile(container.$form(), this.credentialsPath);
+    }
 
     // Convert the above java.io.File -> InputStream
     InputStream in = new FileInputStream(cachedCredentialsFile);
@@ -216,6 +203,19 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  @SimpleEvent(
+    description="This event block is triggered when any write method to Google " +
+      "Sheets has completed. The name of the original write procedure is given " +
+      "as the `procedureName`, like 'WriteRange' and 'AddRow' for example.")
+  public void AfterWriting (final String procedureName) {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "AfterWriting", procedureName);
+      }
+    });
+  }
   /* Helper Functions for the User */
 
   @SimpleFunction(
@@ -346,6 +346,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body);
           update.setValueInputOption("USER_ENTERED");
           update.execute();
+          AfterWriting("WriteRow");
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -358,13 +359,19 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   @SimpleFunction(
     description="Given a list of values as `data`, this method will write the " +
       "values to the next empty row in the sheet with the provided sheetName. ")
-  public void AddRow (String sheetName, List<Object> data) {
+  public void AddRow (String sheetName, YailList data) {
     // Properly format the range
     final String rangeRef = sheetName + "!A1";
-    // Given the list of data to add as a row, format into a 2D row
-    List<List<Object>> values = Arrays.asList(data);
+    // Generates the body, which are the values to assign to the range
+    List<List<Object>> values = new ArrayList<>();
+    List<Object> r = new ArrayList<Object>();
+    for (Object o : (LList) data.getCdr()) {
+      r.add(o);
+    }
+    values.add(r);
     final ValueRange body = new ValueRange()
       .setValues(values);
+
     // Run the API call asynchronously
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
@@ -377,6 +384,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .setInsertDataOption("INSERT_ROWS") // INSERT_ROWS or OVERRIDE
             .execute();
+          AfterWriting("AddRow");
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -412,6 +420,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
+          AfterWriting("RemoveRow");
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -488,10 +497,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleFunction(
-  description="Deletes the column with the given column number (1-indexed) " +
-    "from the sheets page with the grid ID `gridId`. This does not clear the " +
-    "column, but removes it entirely. The sheet's grid id can be found at the " +
-    "end of the url of the Google Sheets document, right after the `gid=`.")
+    description="Deletes the column with the given column number (1-indexed) " +
+      "from the sheets page with the grid ID `gridId`. This does not clear the " +
+      "column, but removes it entirely. The sheet's grid id can be found at the " +
+      "end of the url of the Google Sheets document, right after the `gid=`.")
   public void RemoveCol (final int gridId, final int colNumber) {
 
     AsynchUtil.runAsynchronously(new Runnable() {
@@ -514,6 +523,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
+          AfterWriting("RemoveCol");
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -612,6 +622,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .execute();
+          AfterWriting("WriteCell");
         }
         // Catch the two kinds of exceptions
         catch (Exception e) {
@@ -743,6 +754,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .execute();
+          AfterWriting("WriteRange");
         }
         catch (Exception e) {
           e.printStackTrace();

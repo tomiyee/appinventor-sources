@@ -173,9 +173,6 @@ Appinventor Google Sheets Component
 
 {:.properties}
 
-{:id="GoogleSheets.ApiKey" .text} *ApiKey*
-: Property for ApiKey
-
 {:id="GoogleSheets.credentialsJson" .text} *credentialsJson*
 : Property for credentialsJson
 
@@ -185,6 +182,9 @@ Appinventor Google Sheets Component
 ### Events  {#GoogleSheets-Events}
 
 {:.events}
+
+{:id="GoogleSheets.AfterWriting"} AfterWriting(*procedureName*{:.text})
+: This event block is triggered when any write method to Google Sheets has completed. The name of the original write procedure is given as the `procedureName`, like 'WriteRange' and 'AddRow' for example.
 
 {:id="GoogleSheets.ErrorOccurred"} ErrorOccurred(*errorMessage*{:.text})
 : This event block is triggered whenever an API call encounters an error. Text with details about the error can be found in `errorMessage`
