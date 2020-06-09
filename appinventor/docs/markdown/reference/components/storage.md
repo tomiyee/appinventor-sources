@@ -205,6 +205,9 @@ Appinventor Google Sheets Component
 
 {:.methods}
 
+{:id="GoogleSheets.AddCol" class="method"} <i/> AddCol(*sheetName*{:.text},*data*{:.list})
+: Given a list of values as `data`, this method will write the values to the next empty column in the sheet with the provided sheetName.
+
 {:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*data*{:.list})
 : Given a list of values as `data`, this method will write the values to the next empty row in the sheet with the provided sheetName.
 
@@ -234,6 +237,9 @@ Appinventor Google Sheets Component
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.any})
 : Assigns the text in `data` to the cell at the provided cell reference. If there is already a value in this range, the old value be overriden by the new text.
+
+{:id="GoogleSheets.WriteCol" class="method"} <i/> WriteCol(*sheetName*{:.text},*colNumber*{:.number},*data*{:.list})
+: Given a list of values as `data`, this method will write the values to the column of the sheet. It will always start from the top row and continue downwards. If there are alreaddy values in that column, this method will override them with the new data. It will not erase the entire column, only the bits that overlap with this.
 
 {:id="GoogleSheets.WriteRange" class="method"} <i/> WriteRange(*sheetName*{:.text},*rangeReference*{:.text},*data*{:.list})
 : Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.

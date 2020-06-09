@@ -497,6 +497,119 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   @SimpleFunction(
+    description="Given a list of values as `data`, this method will write the " +
+      "values to the column of the sheet. It will always start from the top " +
+      "row and continue downwards. If there are alreaddy values in that " +
+      "column, this method will override them with the new data. It will not " +
+      "erase the entire column, only the bits that overlap with this.")
+  public void WriteCol (String sheetName, int colNumber, YailList data) {
+    // Converts the col number to the corresponding letter
+    String[] alphabet = {
+      "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
+      "S","T","U","V","W","X","Y","Z"};
+    String colReference = "";
+    while (colNumber > 0) {
+      String digit = alphabet[(colNumber-1) % 26];
+      colReference = digit + colReference;
+      colNumber = (int) Math.floor((colNumber-1) / 26);
+    }
+    final String rangeRef = sheetName + "!" + colReference + ":" + colReference;
+
+    // Generates the body, which are the values to assign to the range
+    List<List<Object>> values = new ArrayList<>();
+    for (Object o : (LList) data.getCdr()) {
+      List<Object> r = new ArrayList<Object>();
+      r.add(o);
+      values.add(r);
+    }
+    final ValueRange body = new ValueRange()
+      .setValues(values);
+
+    // Wrap the API Call in an Async Utility
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        // Surround the operation with a try catch statement
+        try {
+          Sheets sheetsService = getSheetsService();
+          // UpdateValuesResponse result =
+          Sheets.Spreadsheets.Values.Update update = sheetsService.spreadsheets().values()
+            .update(spreadsheetID, rangeRef, body);
+          update.setValueInputOption("USER_ENTERED");
+          update.execute();
+          AfterWriting("WriteCol");
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+          ErrorOccurred("WriteCol: " + e.getMessage());
+        }
+      }
+    });
+
+  }
+
+  @SimpleFunction(
+    description="Given a list of values as `data`, this method will write the " +
+      "values to the next empty column in the sheet with the provided sheetName. ")
+  public void AddCol (final String sheetName, YailList data) {
+
+    // Generates the body, which are the values to assign to the range
+    List<List<Object>> values = new ArrayList<>();
+    for (Object o : (LList) data.getCdr()) {
+      List<Object> r = new ArrayList<Object>();
+      r.add(o);
+      values.add(r);
+    }
+    final ValueRange body = new ValueRange()
+      .setValues(values);
+
+    // Wrap the API Call in an Async Utility
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        // Surround the operation with a try catch statement
+        try {
+          Sheets sheetsService = getSheetsService();
+
+          ValueRange readResult = sheetsService.spreadsheets().values()
+            .get(spreadsheetID, sheetName + "!1:1" ).execute();
+          // Get the actual data from the response
+          List<List<Object>> values = readResult.getValues();
+          // If the data we got is empty, then return so.
+          if (values == null || values.isEmpty())
+            ErrorOccurred("ReadRow: No data found");
+
+          int nextCol = values.get(0).size() + 1;
+
+          // Converts the col number to the corresponding letter
+          String[] alphabet = {
+            "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
+            "S","T","U","V","W","X","Y","Z"};
+          String colReference = "";
+          while (nextCol > 0) {
+            String digit = alphabet[(nextCol-1) % 26];
+            colReference = digit + colReference;
+            nextCol = (int) Math.floor((nextCol-1) / 26);
+          }
+          String rangeRef = sheetName + "!" + colReference + "1";
+
+          // UpdateValuesResponse result =
+          Sheets.Spreadsheets.Values.Update update = sheetsService.spreadsheets().values()
+            .update(spreadsheetID, rangeRef, body);
+          update.setValueInputOption("USER_ENTERED");
+          update.execute();
+
+          AfterWriting("AddCol");
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+          ErrorOccurred("AddCol: " + e.getMessage());
+        }
+      }
+    });
+  }
+
+  @SimpleFunction(
     description="Deletes the column with the given column number (1-indexed) " +
       "from the sheets page with the grid ID `gridId`. This does not clear the " +
       "column, but removes it entirely. The sheet's grid id can be found at the " +
