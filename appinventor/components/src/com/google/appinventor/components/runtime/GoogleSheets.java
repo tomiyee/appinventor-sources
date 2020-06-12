@@ -132,7 +132,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleProperty(
     description = "The Credentials JSON file")
-  public String credentialsJson() {
+  public String CredentialsJson() {
     return credentialsPath;
   }
 
@@ -140,13 +140,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     editorType = PropertyTypeConstants.PROPERTY_TYPE_ASSET,
     defaultValue = "")
   @SimpleProperty
-  public void credentialsJson (String credentialsPath) {
+  public void CredentialsJson (String credentialsPath) {
     this.credentialsPath = credentialsPath;
   }
 
   @SimpleProperty(
     description = "The ID you can find in the URL of the Google Sheets you want to edit")
-  public String spreadsheetID() {
+  public String SpreadsheetID() {
     return spreadsheetID;
   }
 
@@ -156,7 +156,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   @SimpleProperty(
     description="The ID for the Google Sheets file you want to edit. You can " +
       "find the spreadsheetID in the URL of the Google Sheets file.")
-  public void spreadsheetID(String spreadsheetID) {
+  public void SpreadsheetID(String spreadsheetID) {
     this.spreadsheetID = spreadsheetID;
   }
 
@@ -164,7 +164,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   private Credential authorize() throws IOException {
 
-    // TODO - Only change cachedCredentialsFile if credentials path is different. See FusionTables
     if (cachedCredentialsFile == null) {
       cachedCredentialsFile = MediaUtil.copyMediaToTempFile(container.$form(), this.credentialsPath);
     }
@@ -179,6 +178,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     return credential;
   }
 
+  // Uses the Google Sheets Credentials to create a Google Sheets API instance
+  // required for all other Google Sheets API calls
   private Sheets getSheetsService ()  throws IOException, GeneralSecurityException {
     Credential credential = authorize();
 
@@ -203,19 +204,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(
-    description="This event block is triggered when any write method to Google " +
-      "Sheets has completed. The name of the original write procedure is given " +
-      "as the `procedureName`, like 'WriteRange' and 'AddRow' for example.")
-  public void AfterWriting (final String procedureName) {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "AfterWriting", procedureName);
-      }
-    });
-  }
   /* Helper Functions for the User */
 
   @SimpleFunction(
@@ -346,12 +334,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body);
           update.setValueInputOption("USER_ENTERED");
           update.execute();
-          AfterWriting("WriteRow");
+          FinishedWriteRow();
         }
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("WriteRow: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedWriteRow () {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteRow");
       }
     });
   }
@@ -379,17 +378,31 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         try {
           Sheets sheetsService = getSheetsService();
           // Sends the append values request
-          sheetsService.spreadsheets().values()
+          AppendValuesResponse response = sheetsService.spreadsheets().values()
             .append(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .setInsertDataOption("INSERT_ROWS") // INSERT_ROWS or OVERRIDE
             .execute();
-          AfterWriting("AddRow");
+
+          // getUpdatedRange returns the range that updates were applied in A1
+          String location = response.getUpdates().getUpdatedRange();
+          FinishedAddRow(location);
         }
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("AddRow: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedAddRow (final String location) {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedAddRow", location);
       }
     });
   }
@@ -420,12 +433,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
-          AfterWriting("RemoveRow");
+          FinishedRemoveRow();
         }
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("RemoveRow: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedRemoveRow () {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedRemoveRow");
       }
     });
   }
@@ -537,7 +561,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body);
           update.setValueInputOption("USER_ENTERED");
           update.execute();
-          AfterWriting("WriteCol");
+          FinishedWriteCol();
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -545,7 +569,17 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         }
       }
     });
+  }
 
+  @SimpleEvent(description="")
+  public void FinishedWriteCol () {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteCol");
+      }
+    });
   }
 
   @SimpleFunction(
@@ -579,8 +613,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           if (values == null || values.isEmpty())
             ErrorOccurred("ReadRow: No data found");
 
+          // nextCol gets mutated, keep addedColumn as a constant
           int nextCol = values.get(0).size() + 1;
-
+          int addedColumn = nextCol;
           // Converts the col number to the corresponding letter
           String[] alphabet = {
             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
@@ -593,18 +628,28 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
           String rangeRef = sheetName + "!" + colReference + "1";
 
-          // UpdateValuesResponse result =
-          Sheets.Spreadsheets.Values.Update update = sheetsService.spreadsheets().values()
-            .update(spreadsheetID, rangeRef, body);
-          update.setValueInputOption("USER_ENTERED");
-          update.execute();
+          sheetsService.spreadsheets().values()
+            .update(spreadsheetID, rangeRef, body)
+            .setValueInputOption("USER_ENTERED")
+            .execute();
 
-          AfterWriting("AddCol");
+          FinishedAddCol(addedColumn);
         }
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("AddCol: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedAddCol (final int columnNumber) {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedAddCol", columnNumber);
       }
     });
   }
@@ -636,12 +681,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
-          AfterWriting("RemoveCol");
+          FinishedRemoveCol();
         }
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("RemoveCol: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedRemoveCol () {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedRemoveCol");
       }
     });
   }
@@ -735,13 +791,24 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .execute();
-          AfterWriting("WriteCell");
+          FinishedWriteCell();
         }
         // Catch the two kinds of exceptions
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("WriteCell: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedWriteCell () {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteCell");
       }
     });
   }
@@ -867,12 +934,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .execute();
-          AfterWriting("WriteRange");
+          FinishedWriteRange();
         }
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("WriteRange: " + e.getMessage());
         }
+      }
+    });
+  }
+
+  @SimpleEvent(description="")
+  public void FinishedWriteRange () {
+    final GoogleSheets thisInstance = this;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteRange");
       }
     });
   }

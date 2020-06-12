@@ -173,21 +173,42 @@ Appinventor Google Sheets Component
 
 {:.properties}
 
-{:id="GoogleSheets.credentialsJson" .text} *credentialsJson*
-: Property for credentialsJson
+{:id="GoogleSheets.CredentialsJson" .text} *CredentialsJson*
+: Property for CredentialsJson
 
-{:id="GoogleSheets.spreadsheetID" .text} *spreadsheetID*
+{:id="GoogleSheets.SpreadsheetID" .text} *SpreadsheetID*
 : The ID for the Google Sheets file you want to edit. You can find the spreadsheetID in the URL of the Google Sheets file.
 
 ### Events  {#GoogleSheets-Events}
 
 {:.events}
 
-{:id="GoogleSheets.AfterWriting"} AfterWriting(*procedureName*{:.text})
-: This event block is triggered when any write method to Google Sheets has completed. The name of the original write procedure is given as the `procedureName`, like 'WriteRange' and 'AddRow' for example.
-
 {:id="GoogleSheets.ErrorOccurred"} ErrorOccurred(*errorMessage*{:.text})
 : This event block is triggered whenever an API call encounters an error. Text with details about the error can be found in `errorMessage`
+
+{:id="GoogleSheets.FinishedAddCol"} FinishedAddCol(*columnNumber*{:.number})
+: Event for FinishedAddCol
+
+{:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*location*{:.text})
+: Event for FinishedAddRow
+
+{:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
+: Event for FinishedRemoveCol
+
+{:id="GoogleSheets.FinishedRemoveRow"} FinishedRemoveRow()
+: Event for FinishedRemoveRow
+
+{:id="GoogleSheets.FinishedWriteCell"} FinishedWriteCell()
+: Event for FinishedWriteCell
+
+{:id="GoogleSheets.FinishedWriteCol"} FinishedWriteCol()
+: Event for FinishedWriteCol
+
+{:id="GoogleSheets.FinishedWriteRange"} FinishedWriteRange()
+: Event for FinishedWriteRange
+
+{:id="GoogleSheets.FinishedWriteRow"} FinishedWriteRow()
+: Event for FinishedWriteRow
 
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
 : After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.
