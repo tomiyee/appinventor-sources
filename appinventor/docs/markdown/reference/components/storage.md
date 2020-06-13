@@ -187,25 +187,25 @@ Appinventor Google Sheets Component
 : This event block is triggered whenever an API call encounters an error. Text with details about the error can be found in `errorMessage`
 
 {:id="GoogleSheets.FinishedAddCol"} FinishedAddCol(*columnNumber*{:.number})
-: Event for FinishedAddCol
+: This event will be triggered once the AddCol method has finished exeuting and the values on the spreadsheet have been updated. Additionally, this returns the column number for the column you've just appended.
 
 {:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*rowNumber*{:.number})
 : This event will be triggered once the AddRow method has finished exeuting and the values on the spreadsheet have been updated. Additionally, this returns the row number for the row you've just added.
 
 {:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
-: Event for FinishedRemoveCol
+: This event will be triggered once the RemoveCol method has finished exeuting and the column on the spreadsheet have been removed.
 
 {:id="GoogleSheets.FinishedRemoveRow"} FinishedRemoveRow()
-: Event for FinishedRemoveRow
+: This event will be triggered once the RemoveRow method has finished exeuting and the row on the spreadsheet have been removed.
 
 {:id="GoogleSheets.FinishedWriteCell"} FinishedWriteCell()
-: Event for FinishedWriteCell
+: This event will be triggered once the WriteCell method has finished exeuting and the cell on the spreadsheet has been updated.
 
 {:id="GoogleSheets.FinishedWriteCol"} FinishedWriteCol()
-: Event for FinishedWriteCol
+: This event will be triggered once the WriteCol method has finished exeuting and the values on the spreadsheet have been updated.
 
 {:id="GoogleSheets.FinishedWriteRange"} FinishedWriteRange()
-: Event for FinishedWriteRange
+: This event will be triggered once the WriteRange method has finished exeuting and the range on the spreadsheet has been updated.
 
 {:id="GoogleSheets.FinishedWriteRow"} FinishedWriteRow()
 : This event will be triggered once the WriteRow method has finished exeuting and the values on the spreadsheet have been updated.

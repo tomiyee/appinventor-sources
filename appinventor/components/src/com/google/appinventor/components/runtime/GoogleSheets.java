@@ -452,7 +452,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the RemoveRow method has " +
+      "finished exeuting and the row on the spreadsheet have been removed.")
   public void FinishedRemoveRow () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -580,7 +582,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the WriteCol method has " +
+      "finished exeuting and the values on the spreadsheet have been updated.")
   public void FinishedWriteCol () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -652,7 +656,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the AddCol method has " +
+      "finished exeuting and the values on the spreadsheet have been updated. " +
+      "Additionally, this returns the column number for the column you've just " +
+      "appended.")
   public void FinishedAddCol (final int columnNumber) {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -700,7 +708,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the RemoveCol method has " +
+      "finished exeuting and the column on the spreadsheet have been removed.")
   public void FinishedRemoveCol () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -811,7 +821,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the WriteCell method has " +
+      "finished exeuting and the cell on the spreadsheet has been updated.")
   public void FinishedWriteCell () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -953,7 +965,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the WriteRange method has " +
+      "finished exeuting and the range on the spreadsheet has been updated.")
   public void FinishedWriteRange () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
