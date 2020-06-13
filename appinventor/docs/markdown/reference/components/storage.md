@@ -189,8 +189,8 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.FinishedAddCol"} FinishedAddCol(*columnNumber*{:.number})
 : Event for FinishedAddCol
 
-{:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*location*{:.text})
-: Event for FinishedAddRow
+{:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*rowNumber*{:.number})
+: This event will be triggered once the AddRow method has finished exeuting and the values on the spreadsheet have been updated. Additionally, this returns the row number for the row you've just added.
 
 {:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
 : Event for FinishedRemoveCol
@@ -208,7 +208,7 @@ Appinventor Google Sheets Component
 : Event for FinishedWriteRange
 
 {:id="GoogleSheets.FinishedWriteRow"} FinishedWriteRow()
-: Event for FinishedWriteRow
+: This event will be triggered once the WriteRow method has finished exeuting and the values on the spreadsheet have been updated.
 
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
 : After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.

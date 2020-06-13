@@ -344,7 +344,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
+  @SimpleEvent(
+    description="This event will be triggered once the WriteRow method has " +
+      "finished exeuting and the values on the spreadsheet have been updated.")
   public void FinishedWriteRow () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -385,8 +387,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .execute();
 
           // getUpdatedRange returns the range that updates were applied in A1
-          String location = response.getUpdates().getUpdatedRange();
-          FinishedAddRow(location);
+          String updatedRange = response.getUpdates().getUpdatedRange();
+          // updatedRange is in the form SHEET_NAME!A#:END# => We want #
+          String cell = updatedRange.split("!")[1].split(":")[0];
+          // Remove non-numeric characters from the string
+          int rowNumber = Integer.parseInt(cell.replaceAll("[^\\d.]", ""));
+          FinishedAddRow(rowNumber);
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -396,13 +402,16 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
-  @SimpleEvent(description="")
-  public void FinishedAddRow (final String location) {
+  @SimpleEvent(
+    description="This event will be triggered once the AddRow method has " +
+      "finished exeuting and the values on the spreadsheet have been updated. " +
+      "Additionally, this returns the row number for the row you've just added.")
+  public void FinishedAddRow (final int rowNumber) {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedAddRow", location);
+        EventDispatcher.dispatchEvent(thisInstance, "FinishedAddRow", rowNumber);
       }
     });
   }
