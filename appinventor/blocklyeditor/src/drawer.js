@@ -721,6 +721,18 @@ Blockly.Drawer.defaultBlockXMLStrings = {
         '</xml>'
       );
     }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadSheet"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
 
     // GoogleSheets.Write methods default to writing to "Sheet1"
     {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"WriteRow"},

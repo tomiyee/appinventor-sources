@@ -346,7 +346,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the WriteRow method has " +
-      "finished exeuting and the values on the spreadsheet have been updated.")
+      "finished executing and the values on the spreadsheet have been updated.")
   public void FinishedWriteRow () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -404,7 +404,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the AddRow method has " +
-      "finished exeuting and the values on the spreadsheet have been updated. " +
+      "finished executing and the values on the spreadsheet have been updated. " +
       "Additionally, this returns the row number for the row you've just added.")
   public void FinishedAddRow (final int rowNumber) {
     final GoogleSheets thisInstance = this;
@@ -454,7 +454,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the RemoveRow method has " +
-      "finished exeuting and the row on the spreadsheet have been removed.")
+      "finished executing and the row on the spreadsheet have been removed.")
   public void FinishedRemoveRow () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -584,7 +584,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the WriteCol method has " +
-      "finished exeuting and the values on the spreadsheet have been updated.")
+      "finished executing and the values on the spreadsheet have been updated.")
   public void FinishedWriteCol () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -658,7 +658,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the AddCol method has " +
-      "finished exeuting and the values on the spreadsheet have been updated. " +
+      "finished executing and the values on the spreadsheet have been updated. " +
       "Additionally, this returns the column number for the column you've just " +
       "appended.")
   public void FinishedAddCol (final int columnNumber) {
@@ -710,7 +710,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the RemoveCol method has " +
-      "finished exeuting and the column on the spreadsheet have been removed.")
+      "finished executing and the column on the spreadsheet have been removed.")
   public void FinishedRemoveCol () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -823,7 +823,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the WriteCell method has " +
-      "finished exeuting and the cell on the spreadsheet has been updated.")
+      "finished executing and the cell on the spreadsheet has been updated.")
   public void FinishedWriteCell () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -967,13 +967,77 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="This event will be triggered once the WriteRange method has " +
-      "finished exeuting and the range on the spreadsheet has been updated.")
+      "finished executing and the range on the spreadsheet has been updated.")
   public void FinishedWriteRange () {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteRange");
+      }
+    });
+  }
+
+  /* Sheet-wise Operations */
+
+  @SimpleFunction(
+    description="Reads the *entire* Google Sheet document. It will then provide " +
+      "the values of the full sheet will be provided as a list of lists of text.")
+  public void ReadSheet (final String sheetName) {
+
+    // Asynchronously fetch the data in the cell
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        Log.d(LOG_TAG, "Reading Sheet: " + sheetName);
+
+        try {
+          Sheets sheetsService = getSheetsService();
+          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
+          ValueRange readResult = sheetsService.spreadsheets().values()
+            .get(spreadsheetID, sheetName).execute();
+          // Get the actual data from the response
+          List<List<Object>> values = readResult.getValues();
+
+          // No Data Found
+          if (values == null || values.isEmpty()) {
+            ErrorOccurred("ReadSheet: No data found.");
+            return;
+          }
+          // Format the result as a string and run the call back
+          List<List<String>> ret = new ArrayList<List<String>>();
+          // For every object in the result, convert it to a string
+          for (List<Object> row : values) {
+            List<String> cellRow = new ArrayList<String>();
+            for (Object cellValue : row) {
+              cellRow.add(String.format("%s", cellValue));
+            }
+            ret.add(cellRow);
+          }
+
+          GotSheetData(ret);
+        }
+        // Handle Errors which may have occured while sending the Read Request!
+        catch (Exception e) {
+          e.printStackTrace();
+          ErrorOccurred("ReadSheet: " + e.getMessage());
+        }
+      }
+    });
+  }
+
+  @SimpleEvent(
+    description="After calling the ReadSheet method, the data in the range will " +
+      "be stored as a list of rows, where every row is another list of text, in " +
+      "`sheetData`.")
+  public void GotSheetData (final List<List<String>> sheetData) {
+    Log.d(LOG_TAG, "GotSheetData got: " + sheetData);
+    final GoogleSheets thisInstance = this;
+    // We need to re-enter the main thread before we can dispatch the event!
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        EventDispatcher.dispatchEvent(thisInstance, "GotSheetData", sheetData);
       }
     });
   }

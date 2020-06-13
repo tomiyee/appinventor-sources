@@ -187,28 +187,28 @@ Appinventor Google Sheets Component
 : This event block is triggered whenever an API call encounters an error. Text with details about the error can be found in `errorMessage`
 
 {:id="GoogleSheets.FinishedAddCol"} FinishedAddCol(*columnNumber*{:.number})
-: This event will be triggered once the AddCol method has finished exeuting and the values on the spreadsheet have been updated. Additionally, this returns the column number for the column you've just appended.
+: This event will be triggered once the AddCol method has finished executing and the values on the spreadsheet have been updated. Additionally, this returns the column number for the column you've just appended.
 
 {:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*rowNumber*{:.number})
-: This event will be triggered once the AddRow method has finished exeuting and the values on the spreadsheet have been updated. Additionally, this returns the row number for the row you've just added.
+: This event will be triggered once the AddRow method has finished executing and the values on the spreadsheet have been updated. Additionally, this returns the row number for the row you've just added.
 
 {:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
-: This event will be triggered once the RemoveCol method has finished exeuting and the column on the spreadsheet have been removed.
+: This event will be triggered once the RemoveCol method has finished executing and the column on the spreadsheet have been removed.
 
 {:id="GoogleSheets.FinishedRemoveRow"} FinishedRemoveRow()
-: This event will be triggered once the RemoveRow method has finished exeuting and the row on the spreadsheet have been removed.
+: This event will be triggered once the RemoveRow method has finished executing and the row on the spreadsheet have been removed.
 
 {:id="GoogleSheets.FinishedWriteCell"} FinishedWriteCell()
-: This event will be triggered once the WriteCell method has finished exeuting and the cell on the spreadsheet has been updated.
+: This event will be triggered once the WriteCell method has finished executing and the cell on the spreadsheet has been updated.
 
 {:id="GoogleSheets.FinishedWriteCol"} FinishedWriteCol()
-: This event will be triggered once the WriteCol method has finished exeuting and the values on the spreadsheet have been updated.
+: This event will be triggered once the WriteCol method has finished executing and the values on the spreadsheet have been updated.
 
 {:id="GoogleSheets.FinishedWriteRange"} FinishedWriteRange()
-: This event will be triggered once the WriteRange method has finished exeuting and the range on the spreadsheet has been updated.
+: This event will be triggered once the WriteRange method has finished executing and the range on the spreadsheet has been updated.
 
 {:id="GoogleSheets.FinishedWriteRow"} FinishedWriteRow()
-: This event will be triggered once the WriteRow method has finished exeuting and the values on the spreadsheet have been updated.
+: This event will be triggered once the WriteRow method has finished executing and the values on the spreadsheet have been updated.
 
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
 : After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.
@@ -221,6 +221,9 @@ Appinventor Google Sheets Component
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
 : After calling the ReadRow method, the data in the row will be stored as a list of text values in rowDataList.
+
+{:id="GoogleSheets.GotSheetData"} GotSheetData(*sheetData*{:.list})
+: After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in `sheetData`.
 
 ### Methods  {#GoogleSheets-Methods}
 
@@ -249,6 +252,9 @@ Appinventor Google Sheets Component
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
 : On the sheet with the provided sheet name, this method will read the row with the given number and returns the text that is found in each cell.
+
+{:id="GoogleSheets.ReadSheet" class="method"} <i/> ReadSheet(*sheetName*{:.text})
+: Reads the *entire* Google Sheet document. It will then provide the values of the full sheet will be provided as a list of lists of text.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
 : Deletes the column with the given column number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the column, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.
