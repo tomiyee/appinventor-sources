@@ -47,15 +47,24 @@ import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.util.AsynchUtil;
 import com.google.appinventor.components.runtime.util.MediaUtil;
 import com.google.appinventor.components.runtime.util.YailList;
+import com.google.appinventor.components.runtime.Web;
 import gnu.lists.LList;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+
 /**
  * Appinventor Google Sheets Component
  */
@@ -234,11 +243,112 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Filters and Methods that Use Filters */
 
-  // @SimpleFunction
-  // public DataFilter FilterRowsWhere (int columnNumber, String equals) {}
+  @SimpleFunction(
+    description="(Requires that the Google Sheets document is public with link) " +
+      "Uses SQL-like queries to fetch data For info on the query, see Google's " +
+      "Query Language Reference.")
+  public void GetRowsWithQuery(final int gridId, final String query) {
 
-  // @SimpleFunction
-  // public void GetRowsWithFilter (DataFilter filter) {}
+    // Google Query API
+    // https://developers.google.com/chart/interactive/docs/querylanguage?hl=en
+
+    // Converts the query into URL friendly encoding
+    String encodedQuery = "";
+    try {
+      encodedQuery = URLEncoder.encode(query, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      // If UTF-8 is not supported, we're in big trouble!
+      // According to Javadoc and Android documentation for java.nio.charset.Charset, UTF-8 is
+      // available on every Java implementation.
+      Log.e(LOG_TAG, "UTF-8 is unsupported?", e);
+      ErrorOccurred("GetRowsWithQuery: Something went wrong encoding the query.");
+      return;
+    }
+
+    // Formats the url from the template
+    final String selectUrl = String.format(
+      "https://spreadsheet.google.com/tq?tqx=out:csv&key=%s&gid=%d&tq=%s",
+      spreadsheetID, gridId, encodedQuery);
+
+    // Asynchronously conduct the HTTP Request
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try {
+
+          // HTTP Request
+          URL url = new URL(selectUrl);
+          HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+          // Parse the Result
+          final int responseCode = connection.getResponseCode();
+          final String responseType = connection.getContentType();
+          final String responseContent = getResponseContent(connection);
+
+          // Dispatch the event.
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              GotRowsWithQuery(responseContent);
+            }
+          });
+
+        // Catch Various Errors
+        } catch (MalformedURLException e) {
+          e.printStackTrace();
+          ErrorOccurred("GetRowsWithQuery: MalformedURLException - " + e.getMessage());
+        } catch (IOException e) {
+          e.printStackTrace();
+          ErrorOccurred("GetRowsWithQuery: IOException - " + e.getMessage());
+        }
+      }
+    });
+  }
+
+  @SimpleEvent(
+    description="The result of the GetRowsWithQuery call. The response is a " +
+      "csv, which will need to be parsed with the 'list from csv table' block.")
+  public void GotRowsWithQuery (String response) {
+    EventDispatcher.dispatchEvent(this, "GotRowsWithQuery", response);
+  }
+
+  private static String getResponseContent(HttpURLConnection connection) throws IOException {
+    // Use the content encoding to convert bytes to characters.
+    String encoding = connection.getContentEncoding();
+    if (encoding == null) {
+      encoding = "UTF-8";
+    }
+    InputStreamReader reader = new InputStreamReader(getConnectionStream(connection), encoding);
+    try {
+      int contentLength = connection.getContentLength();
+      StringBuilder sb = (contentLength != -1)
+          ? new StringBuilder(contentLength)
+          : new StringBuilder();
+      char[] buf = new char[1024];
+      int read;
+      while ((read = reader.read(buf)) != -1) {
+        sb.append(buf, 0, read);
+      }
+      return sb.toString();
+    } finally {
+      reader.close();
+    }
+  }
+
+  private static InputStream getConnectionStream(HttpURLConnection connection) throws SocketTimeoutException {
+    // According to the Android reference documentation for HttpURLConnection: If the HTTP response
+    // indicates that an error occurred, getInputStream() will throw an IOException. Use
+    // getErrorStream() to read the error response.
+    try {
+      return connection.getInputStream();
+    } catch (SocketTimeoutException e) {
+      throw e; //Rethrow exception - should not attempt to read stream for timeouts
+    } catch (IOException e1) {
+      // Use the error response for all other IO Exceptions.
+      return connection.getErrorStream();
+    }
+  }
 
   /* Row-wise Operations */
 
@@ -854,7 +964,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
         try {
           Sheets sheetsService = getSheetsService();
-          // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, sheetName + "!" + rangeReference).execute();
           // Get the actual data from the response

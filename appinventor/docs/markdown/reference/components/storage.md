@@ -222,6 +222,9 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
 : After calling the ReadRow method, the data in the row will be stored as a list of text values in rowDataList.
 
+{:id="GoogleSheets.GotRowsWithQuery"} GotRowsWithQuery(*response*{:.text})
+: The result of the GetRowsWithQuery call. The response is a csv, which will need to be parsed with the 'list from csv table' block.
+
 {:id="GoogleSheets.GotSheetData"} GotSheetData(*sheetData*{:.list})
 : After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in `sheetData`.
 
@@ -240,6 +243,9 @@ Appinventor Google Sheets Component
 
 {:id="GoogleSheets.GetRangeReference" class="method returns text"} <i/> GetRangeReference(*row1*{:.number},*col1*{:.number},*row2*{:.number},*col2*{:.number})
 : Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
+
+{:id="GoogleSheets.GetRowsWithQuery" class="method"} <i/> GetRowsWithQuery(*gridId*{:.number},*query*{:.text})
+: (Requires that the Google Sheets document is public with link) Uses SQL-like queries to fetch data For info on the query, see Google's Query Language Reference.
 
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
 : Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.
