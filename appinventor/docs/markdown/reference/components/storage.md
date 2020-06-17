@@ -216,14 +216,14 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
 : After calling the ReadCol method, the data in the column will be stored as a list of text values in `colDataList`.
 
+{:id="GoogleSheets.GotQueryResult"} GotQueryResult(*response*{:.list})
+: The result of the GetRowsWithQuery call. The response is a list of lists, similar to the result of GetRange.
+
 {:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeData*{:.list})
 : After calling the ReadRange method, the data in the range will be stored as a list of rows, where every row is another list of text, in `rangeData`.
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
 : After calling the ReadRow method, the data in the row will be stored as a list of text values in rowDataList.
-
-{:id="GoogleSheets.GotRowsWithQuery"} GotRowsWithQuery(*response*{:.text})
-: The result of the GetRowsWithQuery call. The response is a csv, which will need to be parsed with the 'list from csv table' block.
 
 {:id="GoogleSheets.GotSheetData"} GotSheetData(*sheetData*{:.list})
 : After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in `sheetData`.
@@ -244,7 +244,7 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.GetRangeReference" class="method returns text"} <i/> GetRangeReference(*row1*{:.number},*col1*{:.number},*row2*{:.number},*col2*{:.number})
 : Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
 
-{:id="GoogleSheets.GetRowsWithQuery" class="method"} <i/> GetRowsWithQuery(*gridId*{:.number},*query*{:.text})
+{:id="GoogleSheets.GetWithQuery" class="method"} <i/> GetWithQuery(*gridId*{:.number},*query*{:.text})
 : (Requires that the Google Sheets document is public with link) Uses SQL-like queries to fetch data For info on the query, see Google's Query Language Reference.
 
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})

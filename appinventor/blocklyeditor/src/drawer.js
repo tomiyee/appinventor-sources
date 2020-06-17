@@ -810,6 +810,46 @@ Blockly.Drawer.defaultBlockXMLStrings = {
       );
     }},
 
+    // GoogleSheets.Delete methods default to removing from Grid ID = 0
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"RemoveRow"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="math_number"><field name="NUM">0</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"RemoveCol"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="math_number"><field name="NUM">0</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+
+    // GoogleSheets.GetRowsWithQuery method default to removing from Grid ID = 0
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"GetWithQuery"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="math_number"><field name="NUM">0</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+
 
 
   ]

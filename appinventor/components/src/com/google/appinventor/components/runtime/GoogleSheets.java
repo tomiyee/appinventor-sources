@@ -45,9 +45,9 @@ import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.util.AsynchUtil;
+import com.google.appinventor.components.runtime.util.CsvUtil;
 import com.google.appinventor.components.runtime.util.MediaUtil;
 import com.google.appinventor.components.runtime.util.YailList;
-import com.google.appinventor.components.runtime.Web;
 import gnu.lists.LList;
 import java.io.File;
 import java.io.FileInputStream;
@@ -247,7 +247,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="(Requires that the Google Sheets document is public with link) " +
       "Uses SQL-like queries to fetch data For info on the query, see Google's " +
       "Query Language Reference.")
-  public void GetRowsWithQuery(final int gridId, final String query) {
+  public void GetWithQuery(final int gridId, final String query) {
 
     // Google Query API
     // https://developers.google.com/chart/interactive/docs/querylanguage?hl=en
@@ -282,15 +282,16 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             connection.setRequestMethod("GET");
 
           // Parse the Result
-          final int responseCode = connection.getResponseCode();
-          final String responseType = connection.getContentType();
-          final String responseContent = getResponseContent(connection);
+          // final int responseCode = connection.getResponseCode();
+          // final String responseType = connection.getContentType();
+          String responseContent = getResponseContent(connection);
+          final YailList parsedCsv = CsvUtil.fromCsvTable(responseContent);
 
           // Dispatch the event.
           activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              GotRowsWithQuery(responseContent);
+              GotQueryResult(parsedCsv);
             }
           });
 
@@ -301,6 +302,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         } catch (IOException e) {
           e.printStackTrace();
           ErrorOccurred("GetRowsWithQuery: IOException - " + e.getMessage());
+        } catch (Exception e) {
+          e.printStackTrace();
+          ErrorOccurred("GetRowsWithQuery: Exception - " + e.getMessage());
         }
       }
     });
@@ -308,9 +312,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="The result of the GetRowsWithQuery call. The response is a " +
-      "csv, which will need to be parsed with the 'list from csv table' block.")
-  public void GotRowsWithQuery (String response) {
-    EventDispatcher.dispatchEvent(this, "GotRowsWithQuery", response);
+      "list of lists, similar to the result of GetRange.")
+  public void GotQueryResult (YailList response) {
+    EventDispatcher.dispatchEvent(this, "GotQueryResult", response);
   }
 
   private static String getResponseContent(HttpURLConnection connection) throws IOException {
@@ -866,8 +870,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
 
           // Format the result as a string and run the call back
-          String result = String.format("%s", values.get(0).get(0));
-          GotCellData(result);
+          final String result = String.format("%s", values.get(0).get(0));
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              GotCellData(result);
+            }
+          });
         }
         // Handle Errors which may have occured while sending the Read Request
         catch (Exception e) {
@@ -883,14 +892,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "be stored as text in `cellData`.")
   public void GotCellData(final String cellData) {
     Log.d(LOG_TAG, "GotCellData got: " + cellData);
-    final GoogleSheets thisInstance = this;
-    // We need to re-enter the main thread before we can dispatch the event!
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "GotCellData", cellData);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "GotCellData", cellData);
   }
 
   @SimpleFunction(
@@ -915,14 +917,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         // IOException's and GeneralSecurityException's
         try {
           Sheets sheetsService = getSheetsService();
+
+          // You can use the UpdateValuesResponse to find more data on the
+          // result of the Write method.
+
           // UpdateValuesResponse result =
           sheetsService.spreadsheets().values()
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .execute();
-          FinishedWriteCell();
+          // Trigger the Callback
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedWriteCell();
+            }
+          });
         }
-        // Catch the two kinds of exceptions
         catch (Exception e) {
           e.printStackTrace();
           ErrorOccurred("WriteCell: " + e.getMessage());
@@ -935,13 +946,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="This event will be triggered once the WriteCell method has " +
       "finished executing and the cell on the spreadsheet has been updated.")
   public void FinishedWriteCell () {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteCell");
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedWriteCell");
   }
 
   /* Range-wise Operations */
@@ -1064,7 +1069,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED") // USER_ENTERED or RAW
             .execute();
-          FinishedWriteRange();
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedWriteRange();
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -1078,13 +1088,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="This event will be triggered once the WriteRange method has " +
       "finished executing and the range on the spreadsheet has been updated.")
   public void FinishedWriteRange () {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteRange");
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedWriteRange");
   }
 
   /* Sheet-wise Operations */
