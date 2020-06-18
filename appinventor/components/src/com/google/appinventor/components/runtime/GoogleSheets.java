@@ -198,7 +198,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     this.ApplicationName = ApplicationName;
   }
 
-
   /* Utility Functions for Making Calls */
 
   private Credential authorize() throws IOException {
@@ -415,11 +414,18 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
           // Format the result as a list of strings and run the callback
           else {
-            List<String> ret = new ArrayList<String>();
+            final List<String> ret = new ArrayList<String>();
             for (Object obj : values.get(0)) {
               ret.add(String.format("%s", obj));
             }
-            GotRowData(ret);
+
+            // We need to re-enter the main thread before we can dispatch the event!
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                GotRowData(ret);
+              }
+            });
           }
         }
         // Handle Errors which may have occured while sending the Read Request!
@@ -435,15 +441,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="After calling the ReadRow method, the data in the row will " +
       "be stored as a list of text values in rowDataList.")
   public void GotRowData (final List<String> rowDataList) {
-    Log.d(LOG_TAG, "GotRowData got: " + rowDataList);
-    final GoogleSheets thisInstance = this;
-    // We need to re-enter the main thread before we can dispatch the event!
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "GotRowData", rowDataList);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "GotRowData", rowDataList);
   }
 
   @SimpleFunction(
@@ -477,11 +475,17 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         try {
           Sheets sheetsService = getSheetsService();
           // UpdateValuesResponse result =
-          Sheets.Spreadsheets.Values.Update update = sheetsService.spreadsheets().values()
-            .update(spreadsheetID, rangeRef, body);
-          update.setValueInputOption("USER_ENTERED");
-          update.execute();
-          FinishedWriteRow();
+          sheetsService.spreadsheets().values()
+            .update(spreadsheetID, rangeRef, body)
+            .setValueInputOption("USER_ENTERED")
+            .execute();
+          // Reenter main thread to call the Event Block
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedWriteRow();
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -495,13 +499,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="This event will be triggered once the WriteRow method has " +
       "finished executing and the values on the spreadsheet have been updated.")
   public void FinishedWriteRow () {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteRow");
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedWriteRow");
   }
 
   @SimpleFunction(
@@ -538,8 +536,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           // updatedRange is in the form SHEET_NAME!A#:END# => We want #
           String cell = updatedRange.split("!")[1].split(":")[0];
           // Remove non-numeric characters from the string
-          int rowNumber = Integer.parseInt(cell.replaceAll("[^\\d.]", ""));
-          FinishedAddRow(rowNumber);
+          final int rowNumber = Integer.parseInt(cell.replaceAll("[^\\d.]", ""));
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedAddRow(rowNumber);
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -554,13 +557,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "finished executing and the values on the spreadsheet have been updated. " +
       "Additionally, this returns the row number for the row you've just added.")
   public void FinishedAddRow (final int rowNumber) {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedAddRow", rowNumber);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedAddRow", rowNumber);
   }
 
   @SimpleFunction(
@@ -585,11 +582,18 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             );
           List<Request> requests = new ArrayList<>();
           requests.add(new Request().setDeleteDimension(deleteRequest));
-
           BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
-          FinishedRemoveRow();
+
+          // Run the callback event block
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedRemoveRow();
+            }
+          });
+
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -603,13 +607,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="This event will be triggered once the RemoveRow method has " +
       "finished executing and the row on the spreadsheet have been removed.")
   public void FinishedRemoveRow () {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedRemoveRow");
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedRemoveRow");
   }
 
   /* Column-wise Operations */
@@ -650,10 +648,17 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           }
 
           // Format the result as a list of strings and run the callback
-          List<String> ret = new ArrayList<String>();
+          final List<String> ret = new ArrayList<String>();
           for (List<Object> row : values)
             ret.add(String.format("%s", row.get(0)));
-          GotColData(ret);
+
+          // We need to re-enter the main thread before we can dispatch the event!
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              GotColData(ret);
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -668,14 +673,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "be stored as a list of text values in `colDataList`.")
   public void GotColData (final List<String> colDataList) {
     Log.d(LOG_TAG, "GotColData got: " + colDataList);
-    final GoogleSheets thisInstance = this;
-    // We need to re-enter the main thread before we can dispatch the event!
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "GotColData", colDataList);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "GotColData", colDataList);
   }
 
   @SimpleFunction(
@@ -715,11 +713,17 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         try {
           Sheets sheetsService = getSheetsService();
           // UpdateValuesResponse result =
-          Sheets.Spreadsheets.Values.Update update = sheetsService.spreadsheets().values()
-            .update(spreadsheetID, rangeRef, body);
-          update.setValueInputOption("USER_ENTERED");
-          update.execute();
-          FinishedWriteCol();
+          sheetsService.spreadsheets().values()
+            .update(spreadsheetID, rangeRef, body)
+            .setValueInputOption("USER_ENTERED")
+            .execute();
+          // Run the callback function
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedWriteCol();
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -733,13 +737,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="This event will be triggered once the WriteCol method has " +
       "finished executing and the values on the spreadsheet have been updated.")
   public void FinishedWriteCol () {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedWriteCol");
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedWriteCol");
   }
 
   @SimpleFunction(
@@ -775,7 +773,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
           // nextCol gets mutated, keep addedColumn as a constant
           int nextCol = values.get(0).size() + 1;
-          int addedColumn = nextCol;
+          final int addedColumn = nextCol;
           // Converts the col number to the corresponding letter
           String[] alphabet = {
             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
@@ -793,7 +791,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .setValueInputOption("USER_ENTERED")
             .execute();
 
-          FinishedAddCol(addedColumn);
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedAddCol(addedColumn);
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -809,13 +812,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "Additionally, this returns the column number for the column you've just " +
       "appended.")
   public void FinishedAddCol (final int columnNumber) {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedAddCol", columnNumber);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedAddCol", columnNumber);
   }
 
   @SimpleFunction(
@@ -845,7 +842,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
           BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
             .setRequests(requests);
           sheetsService.spreadsheets().batchUpdate(spreadsheetID, body).execute();
-          FinishedRemoveCol();
+          // Run the callback event
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              FinishedRemoveCol();
+            }
+          });
         }
         catch (Exception e) {
           e.printStackTrace();
@@ -859,13 +862,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="This event will be triggered once the RemoveCol method has " +
       "finished executing and the column on the spreadsheet have been removed.")
   public void FinishedRemoveCol () {
-    final GoogleSheets thisInstance = this;
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "FinishedRemoveCol");
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "FinishedRemoveCol");
   }
 
   /* Cell-wise Operations */
@@ -1013,7 +1010,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             return;
           }
           // Format the result as a string and run the call back
-          List<List<String>> ret = new ArrayList<List<String>>();
+          final List<List<String>> ret = new ArrayList<List<String>>();
           // For every object in the result, convert it to a string
           for (List<Object> row : values) {
             List<String> cellRow = new ArrayList<String>();
@@ -1023,7 +1020,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             ret.add(cellRow);
           }
 
-          GotRangeData(ret);
+          // Run the callback event
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              GotRangeData(ret);
+            }
+          });
         }
         // Handle Errors which may have occured while sending the Read Request!
         catch (Exception e) {
@@ -1038,16 +1041,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="After calling the ReadRange method, the data in the range will " +
       "be stored as a list of rows, where every row is another list of text, in " +
       "`rangeData`.")
-  public void GotRangeData (final List<List<String>> rangeData) {
+  public void GotRangeData (List<List<String>> rangeData) {
     Log.d(LOG_TAG, "GotRangeData got: " + rangeData);
-    final GoogleSheets thisInstance = this;
-    // We need to re-enter the main thread before we can dispatch the event!
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "GotRangeData", rangeData);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "GotRangeData", rangeData);
   }
 
   @SimpleFunction(
@@ -1151,7 +1147,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             return;
           }
           // Format the result as a string and run the call back
-          List<List<String>> ret = new ArrayList<List<String>>();
+          final List<List<String>> ret = new ArrayList<List<String>>();
           // For every object in the result, convert it to a string
           for (List<Object> row : values) {
             List<String> cellRow = new ArrayList<String>();
@@ -1161,7 +1157,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             ret.add(cellRow);
           }
 
-          GotSheetData(ret);
+          // We need to re-enter the main thread before we can dispatch the event!
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              GotSheetData(ret);
+            }
+          });
         }
         // Handle Errors which may have occured while sending the Read Request!
         catch (Exception e) {
@@ -1178,14 +1180,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "`sheetData`.")
   public void GotSheetData (final List<List<String>> sheetData) {
     Log.d(LOG_TAG, "GotSheetData got: " + sheetData);
-    final GoogleSheets thisInstance = this;
-    // We need to re-enter the main thread before we can dispatch the event!
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        EventDispatcher.dispatchEvent(thisInstance, "GotSheetData", sheetData);
-      }
-    });
+    EventDispatcher.dispatchEvent(this, "GotSheetData", sheetData);
   }
 
 }
