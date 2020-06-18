@@ -24,6 +24,7 @@ import com.google.appinventor.client.editor.simple.components.MockEmailPicker;
 import com.google.appinventor.client.editor.simple.components.MockFeatureCollection;
 import com.google.appinventor.client.editor.simple.components.MockFirebaseDB;
 import com.google.appinventor.client.editor.simple.components.MockFusionTablesControl;
+import com.google.appinventor.client.editor.simple.components.MockGoogleSheets;
 import com.google.appinventor.client.editor.simple.components.MockHorizontalArrangement;
 import com.google.appinventor.client.editor.simple.components.MockImage;
 import com.google.appinventor.client.editor.simple.components.MockImagePicker;
@@ -386,6 +387,10 @@ public final class SimpleComponentDescriptor {
             null, editor.getProjectId()));
       } else if(name.equals(MockFusionTablesControl.TYPE)) {
         return new MockFusionTablesControl(editor, name,
+          getImageFromPath(SimpleComponentDatabase.getInstance(editor.getProjectId()).getIconName(name),
+            null, editor.getProjectId()));
+      } else if(name.equals(MockGoogleSheets.TYPE)) {
+        return new MockGoogleSheets(editor, name,
           getImageFromPath(SimpleComponentDatabase.getInstance(editor.getProjectId()).getIconName(name),
             null, editor.getProjectId()));
       } else {

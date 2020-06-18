@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
@@ -108,7 +109,7 @@ import java.util.ArrayList;
     })
 })
 public class GoogleSheets extends AndroidNonvisibleComponent implements Component {
-  // private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
+  // private static final String ApplicationName = "Google Sheets API Java Quickstart";
   // private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   // private static final String TOKENS_DIRECTORY_PATH = "tokens";
   //
@@ -132,8 +133,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   private File cachedCredentialsFile = null;
   private String tokensPath;
   private String spreadsheetID = "";
-  // (TODO) set application name to be the name of the project
-  private String APPLICATION_NAME = "Test Application";
+  private String ApplicationName = "App Inventor";
+
+  private Sheets sheetsService = null;
 
   //   private final Activity activity;
   private final ComponentContainer container;
@@ -169,6 +171,34 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     this.spreadsheetID = spreadsheetID;
   }
 
+  /**
+   * Specifies the name of the application given when doing an API call.
+   *
+   * @internaldoc
+   * This is set programmatically
+   * in {@link com.google.appinventor.client.editor.simple.components.MockGoogleSheets}
+   * and consists of the current App Inventor project name.
+   *
+   * @param ApplicationName the name of the App
+   */
+  @SimpleProperty(
+    description = "The ID you can find in the URL of the Google Sheets you " +
+      "want to edit",
+    userVisible = false)
+  public String ApplicationName() {
+    return ApplicationName;
+  }
+
+  @DesignerProperty(
+    editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
+    defaultValue = "App Inventor")
+  @SimpleProperty(
+    description="ApplicationName")
+  public void ApplicationName(String ApplicationName) {
+    this.ApplicationName = ApplicationName;
+  }
+
+
   /* Utility Functions for Making Calls */
 
   private Credential authorize() throws IOException {
@@ -190,12 +220,15 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   // Uses the Google Sheets Credentials to create a Google Sheets API instance
   // required for all other Google Sheets API calls
   private Sheets getSheetsService ()  throws IOException, GeneralSecurityException {
-    Credential credential = authorize();
-
-    return new Sheets.Builder(new com.google.api.client.http.javanet.NetHttpTransport(),
-      JacksonFactory.getDefaultInstance(), credential)
-      .setApplicationName(APPLICATION_NAME)
-      .build();
+    // Generate a new sheets service only if there is not one already created
+    if (sheetsService == null) {
+      Credential credential = authorize();
+      this.sheetsService = new Sheets.Builder(new NetHttpTransport(),
+        JacksonFactory.getDefaultInstance(), credential)
+        .setApplicationName(ApplicationName)
+        .build();
+    }
+    return sheetsService;
   }
 
   /* Error Catching Handler */
@@ -247,7 +280,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="(Requires that the Google Sheets document is public with link) " +
       "Uses SQL-like queries to fetch data For info on the query, see Google's " +
       "Query Language Reference.")
-  public void GetWithQuery(final int gridId, final String query) {
+  public void ReadWithQuery(final int gridId, final String query) {
 
     // Google Query API
     // https://developers.google.com/chart/interactive/docs/querylanguage?hl=en
@@ -298,13 +331,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         // Catch Various Errors
         } catch (MalformedURLException e) {
           e.printStackTrace();
-          ErrorOccurred("GetRowsWithQuery: MalformedURLException - " + e.getMessage());
+          ErrorOccurred("ReadWithQuery: MalformedURLException - " + e.getMessage());
         } catch (IOException e) {
           e.printStackTrace();
-          ErrorOccurred("GetRowsWithQuery: IOException - " + e.getMessage());
+          ErrorOccurred("ReadWithQuery: IOException - " + e.getMessage());
         } catch (Exception e) {
           e.printStackTrace();
-          ErrorOccurred("GetRowsWithQuery: Exception - " + e.getMessage());
+          ErrorOccurred("ReadWithQuery: Exception - " + e.getMessage());
         }
       }
     });

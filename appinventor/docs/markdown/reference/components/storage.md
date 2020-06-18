@@ -173,6 +173,9 @@ Appinventor Google Sheets Component
 
 {:.properties}
 
+{:id="GoogleSheets.ApplicationName" .text .do} *ApplicationName*
+: ApplicationName
+
 {:id="GoogleSheets.CredentialsJson" .text} *CredentialsJson*
 : Property for CredentialsJson
 
@@ -244,9 +247,6 @@ Appinventor Google Sheets Component
 {:id="GoogleSheets.GetRangeReference" class="method returns text"} <i/> GetRangeReference(*row1*{:.number},*col1*{:.number},*row2*{:.number},*col2*{:.number})
 : Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
 
-{:id="GoogleSheets.GetWithQuery" class="method"} <i/> GetWithQuery(*gridId*{:.number},*query*{:.text})
-: (Requires that the Google Sheets document is public with link) Uses SQL-like queries to fetch data For info on the query, see Google's Query Language Reference.
-
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
 : Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.
 
@@ -261,6 +261,9 @@ Appinventor Google Sheets Component
 
 {:id="GoogleSheets.ReadSheet" class="method"} <i/> ReadSheet(*sheetName*{:.text})
 : Reads the *entire* Google Sheet document. It will then provide the values of the full sheet will be provided as a list of lists of text.
+
+{:id="GoogleSheets.ReadWithQuery" class="method"} <i/> ReadWithQuery(*gridId*{:.number},*query*{:.text})
+: (Requires that the Google Sheets document is public with link) Uses SQL-like queries to fetch data For info on the query, see Google's Query Language Reference.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
 : Deletes the column with the given column number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the column, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.

@@ -733,6 +733,18 @@ Blockly.Drawer.defaultBlockXMLStrings = {
         '</xml>'
       );
     }},
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ReadWithQuery"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="math_number"><field name="NUM">0</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
 
     // GoogleSheets.Write methods default to writing to "Sheet1"
     {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"WriteRow"},
@@ -836,19 +848,6 @@ Blockly.Drawer.defaultBlockXMLStrings = {
       );
     }},
 
-    // GoogleSheets.GetRowsWithQuery method default to removing from Grid ID = 0
-    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"GetWithQuery"},
-    mutatorXMLStringFunction: function(mutatorAttributes) {
-      return (
-        '<xml>' +
-        '<block type="component_method">' +
-        // mutator generator
-        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
-        '<value name="ARG0"><block type="math_number"><field name="NUM">0</field></block></value>' +
-        '</block>' +
-        '</xml>'
-      );
-    }},
 
 
 
