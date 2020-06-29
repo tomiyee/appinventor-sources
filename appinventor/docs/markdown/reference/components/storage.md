@@ -174,7 +174,7 @@ Appinventor Google Sheets Component
 {:.properties}
 
 {:id="GoogleSheets.ApplicationName" .text .do} *ApplicationName*
-: ApplicationName
+: The name of your application, used when making API calls.
 
 {:id="GoogleSheets.CredentialsJson" .text} *CredentialsJson*
 : Property for CredentialsJson

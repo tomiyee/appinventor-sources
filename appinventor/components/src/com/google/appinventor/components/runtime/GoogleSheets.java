@@ -127,19 +127,23 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     this.activity = componentContainer.$context();
   }
 
-  /* Getter and Setters for Properties */
+  // Designer Properties
   private String apiKey;
   private String credentialsPath;
-  private File cachedCredentialsFile = null;
   private String tokensPath;
   private String spreadsheetID = "";
+  // This gets changed to the name of the project by MockGoogleSheets by default
   private String ApplicationName = "App Inventor";
 
+  // Variables for Authenticating the Google Sheets Component
+  private File cachedCredentialsFile = null;
   private Sheets sheetsService = null;
 
   //   private final Activity activity;
   private final ComponentContainer container;
   private final Activity activity;
+
+  /* Getter and Setters for Properties */
 
   @SimpleProperty(
     description = "The Credentials JSON file")
@@ -182,8 +186,6 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
    * @param ApplicationName the name of the App
    */
   @SimpleProperty(
-    description = "The ID you can find in the URL of the Google Sheets you " +
-      "want to edit",
     userVisible = false)
   public String ApplicationName() {
     return ApplicationName;
@@ -193,7 +195,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING,
     defaultValue = "App Inventor")
   @SimpleProperty(
-    description="ApplicationName")
+    description="The name of your application, used when making API calls.")
   public void ApplicationName(String ApplicationName) {
     this.ApplicationName = ApplicationName;
   }
@@ -228,6 +230,20 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         .build();
     }
     return sheetsService;
+  }
+
+  // Yields the A1 notation for the column, e.g. col 1 = A, col 2 = B, etc
+  private String getColString (int colNumber) {
+    String[] alphabet = {
+      "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
+      "S","T","U","V","W","X","Y","Z"};
+    String colReference = "";
+    while (colNumber > 0) {
+      String digit = alphabet[(colNumber-1) % 26];
+      colReference = digit + colReference;
+      colNumber = (int) Math.floor((colNumber-1) / 26);
+    }
+    return colReference;
   }
 
   /* Error Catching Handler */
@@ -453,17 +469,15 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void WriteRow (String sheetName, int rowNumber, YailList data) {
 
     // Generates the A1 Reference for the operation
-    String rangeReference = String.format("A%d", rowNumber);
-    final String rangeRef = sheetName + "!" + rangeReference;
-    Log.d(LOG_TAG, "Writing Row: " + rangeRef);
+    final String rangeRef = String.format("%s!A%d", sheetName, rowNumber);
 
-    // Generates the body, which are the values to assign to the range
+    // Generates the 2D list, which are the values to assign to the range
+    LList rowValues = (LList) data.getCdr();
     List<List<Object>> values = new ArrayList<>();
-    List<Object> r = new ArrayList<Object>();
-    for (Object o : (LList) data.getCdr()) {
-      r.add(o);
-    }
-    values.add(r);
+    List<Object> row = new ArrayList<Object>(rowValues);
+    values.add(row);
+
+    // Sets the 2D list above to be the values in the body of the API Call
     final ValueRange body = new ValueRange()
       .setValues(values);
 
@@ -479,7 +493,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             .update(spreadsheetID, rangeRef, body)
             .setValueInputOption("USER_ENTERED")
             .execute();
-          // Reenter main thread to call the Event Block
+          // Re-enter main thread to call the Event Block
           activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -508,13 +522,14 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void AddRow (String sheetName, YailList data) {
     // Properly format the range
     final String rangeRef = sheetName + "!A1";
-    // Generates the body, which are the values to assign to the range
+
+    // Generates the 2D list, which are the values to assign to the range
+    LList rowValues = (LList) data.getCdr();
     List<List<Object>> values = new ArrayList<>();
-    List<Object> r = new ArrayList<Object>();
-    for (Object o : (LList) data.getCdr()) {
-      r.add(o);
-    }
-    values.add(r);
+    List<Object> row = new ArrayList<Object>(rowValues);
+    values.add(row);
+
+    // Sets the 2D list above to be the values in the body of the API Call
     final ValueRange body = new ValueRange()
       .setValues(values);
 
@@ -619,15 +634,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   public void ReadCol (String sheetName, int colNumber) {
 
     // Converts the col number to the corresponding letter
-    String[] alphabet = {
-      "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
-      "S","T","U","V","W","X","Y","Z"};
-    String colReference = "";
-    while (colNumber > 0) {
-      String digit = alphabet[(colNumber-1) % 26];
-      colReference = digit + colReference;
-      colNumber = (int) Math.floor((colNumber-1) / 26);
-    }
+    String colReference = getColString(colNumber);
     final String rangeRef = sheetName + "!" + colReference + ":" + colReference;
 
     // Asynchronously fetch the data in the cell and trigger the callback
@@ -683,25 +690,19 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "column, this method will override them with the new data. It will not " +
       "erase the entire column, only the bits that overlap with this.")
   public void WriteCol (String sheetName, int colNumber, YailList data) {
+
     // Converts the col number to the corresponding letter
-    String[] alphabet = {
-      "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
-      "S","T","U","V","W","X","Y","Z"};
-    String colReference = "";
-    while (colNumber > 0) {
-      String digit = alphabet[(colNumber-1) % 26];
-      colReference = digit + colReference;
-      colNumber = (int) Math.floor((colNumber-1) / 26);
-    }
+    String colReference = getColString(colNumber);
     final String rangeRef = sheetName + "!" + colReference + ":" + colReference;
 
     // Generates the body, which are the values to assign to the range
     List<List<Object>> values = new ArrayList<>();
     for (Object o : (LList) data.getCdr()) {
-      List<Object> r = new ArrayList<Object>();
-      r.add(o);
+      List<Object> r = new ArrayList<Object>(Arrays.asList(o));
       values.add(r);
     }
+
+    // Sets the 2D list above to be the values in the body of the API Call
     final ValueRange body = new ValueRange()
       .setValues(values);
 
@@ -895,7 +896,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
           // If the data we got is empty, then return so.
           if (values == null || values.isEmpty()) {
-            ErrorOccurred("ReadCell: No data found");
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                GotCellData("");
+              }
+            });
             return;
           }
 
