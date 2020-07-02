@@ -77,7 +77,7 @@ import java.util.ArrayList;
  *
  * Instructions on how to create the Service Account, as well as where to find
  * other relevant information for using the Google Sheets Component, can be
- * found <a href='https://docs.google.com/document/d/1PurfpFV6_ncXq-SvMKCF7_xBHKTWF10L1LqmHoSTUF4/edit?usp=sharing'>here</a>.
+ * found <a href='ai2.appinventor.mit.edu/reference/other/googlesheets-api-setup.html'>here</a>.
  *
  * Row and column numbers are 1-indexed.
  */
