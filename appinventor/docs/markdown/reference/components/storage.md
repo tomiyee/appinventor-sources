@@ -202,14 +202,17 @@ GoogleSheets is a non-visible component for storing and receiving data from
 : Triggered whenever an API call encounters an error. Details about the error are in `errorMessage`
 
 {:id="GoogleSheets.FinishedAddCol"} FinishedAddCol(*columnNumber*{:.number})
-: This event will be triggered once the AddCol method has finished executing and the values on the spreadsheet have been updated. Additionally, this returns the column number for the column you've just appended.
+: The callback event for the [`AddCol`](#GoogleSheets.AddCol) block, called once the
+ values on the table have been updated. Additionally, this returns the
+ column number for the new column.
 
 {:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*rowNumber*{:.number})
 : The callback event for the [`AddRow`](#GoogleSheets.AddRow) block, called once the
  values on the table have been updated.
 
 {:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
-: This event will be triggered once the RemoveCol method has finished executing and the column on the spreadsheet have been removed.
+: The callback event for the [`RemoveCol`](#GoogleSheets.RemoveCol) block, called once the
+ values on the table have been updated.
 
 {:id="GoogleSheets.FinishedRemoveRow"} FinishedRemoveRow()
 : The callback event for the [`RemoveRow`](#GoogleSheets.RemoveRow) block, called once the
@@ -219,7 +222,8 @@ GoogleSheets is a non-visible component for storing and receiving data from
 : This event will be triggered once the WriteCell method has finished executing and the cell on the spreadsheet has been updated.
 
 {:id="GoogleSheets.FinishedWriteCol"} FinishedWriteCol()
-: This event will be triggered once the WriteCol method has finished executing and the values on the spreadsheet have been updated.
+: The callback event for the [`WriteCol`](#GoogleSheets.WriteCol) block, called once the
+ values on the table have been updated.
 
 {:id="GoogleSheets.FinishedWriteRange"} FinishedWriteRange()
 : This event will be triggered once the WriteRange method has finished executing and the range on the spreadsheet has been updated.
@@ -232,7 +236,8 @@ GoogleSheets is a non-visible component for storing and receiving data from
 : After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.
 
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
-: After calling the ReadCol method, the data in the column will be stored as a list of text values in `colDataList`.
+: The callback event for the [`ReadCol`](#GoogleSheets.ReadCol) block. The `colDataList` is a
+ list of text cell-values in order of increasing row number.
 
 {:id="GoogleSheets.GotQueryResult"} GotQueryResult(*response*{:.list})
 : The callbeck event for the [`ReadWithQuery`](#GoogleSheets.ReadWithQuery) block. The `response`
@@ -244,7 +249,7 @@ GoogleSheets is a non-visible component for storing and receiving data from
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
 : The callback event for the [`ReadRow`](#GoogleSheets.ReadRow) block. The `rowDataList` is a
- list of cell values in order of increasing column number.
+ list of text cell-values in order of increasing column number.
 
 {:id="GoogleSheets.GotSheetData"} GotSheetData(*sheetData*{:.list})
 : After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in `sheetData`.
@@ -254,13 +259,16 @@ GoogleSheets is a non-visible component for storing and receiving data from
 {:.methods}
 
 {:id="GoogleSheets.AddCol" class="method"} <i/> AddCol(*sheetName*{:.text},*data*{:.list})
-: Given a list of values as `data`, this method will write the values to the next empty column in the sheet with the provided sheetName.
+: Given a list of values as `data`, appends the values in `data` to the next
+ empty column of the sheet. It will always start from the top row and
+ continue downwards. Once complete, it triggers the [`FinishedAddCol`](#GoogleSheets.FinishedAddCol)
+ callback event.
 
 {:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*data*{:.list})
 : Given a list of values as `data`, appends the values in `data` to the next
  empty row of the sheet. It will always start from the left most column and
  continue to the right. Once complete, it triggers the [`FinishedAddRow`](#GoogleSheets.FinishedAddRow)
- callback event.
+ callback event. Additionally, this returns the row number for the new row.
 
 {:id="GoogleSheets.GetCellReference" class="method returns text"} <i/> GetCellReference(*row*{:.number},*col*{:.number})
 : Converts the integer representation of rows and columns to A1-Notation used
@@ -276,14 +284,15 @@ GoogleSheets is a non-visible component for storing and receiving data from
 : Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.
 
 {:id="GoogleSheets.ReadCol" class="method"} <i/> ReadCol(*sheetName*{:.text},*colNumber*{:.number})
-: Begins an API call which will request the data stored in the column with the provided `colNumber` (1-indexed). The resulting data will be sent to the GotColData event block.
+: On the page with the provided sheetName, reads the column at the given
+ colNumber and triggers the [`GotColData`](#GoogleSheets.GotColData) callback event.
 
 {:id="GoogleSheets.ReadRange" class="method"} <i/> ReadRange(*sheetName*{:.text},*rangeReference*{:.text})
 : Begins an API call which will request the data stored in the range with the provided range reference. This range reference can be the result of the getRangeReference block, or a text block with the correct A1 notation. The resulting range data will be sent to the GotRangeData event block.
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
-: On the page with the provided sheetName, this method will read the row at
- the given rowNumber and trigger the [`GotRowData`](#GoogleSheets.GotRowData) callback event.
+: On the page with the provided sheetName, reads the row at the given
+ rowNumber and triggers the [`GotRowData`](#GoogleSheets.GotRowData) callback event.
 
 {:id="GoogleSheets.ReadSheet" class="method"} <i/> ReadSheet(*sheetName*{:.text})
 : Reads the *entire* Google Sheet document. It will then provide the values of the full sheet will be provided as a list of lists of text.
@@ -297,19 +306,29 @@ GoogleSheets is a non-visible component for storing and receiving data from
  here</a>.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
-: Deletes the column with the given column number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the column, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.
+: Deletes the column with the given column number from the table. This does
+ not clear the column, but removes it entirely. The sheet's grid id can be
+ found at the end of the url of the Google Sheets document, right after the
+ `gid=`. Once complete, it triggers the [`FinishedRemoveCol`](#GoogleSheets.FinishedRemoveCol)
+ callback event.
 
 {:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*gridId*{:.number},*rowNumber*{:.number})
 : Deletes the row with the given row number (1-indexed) from the table. This
  does not clear the row, but removes it entirely. The sheet's grid id can be
- found at the nd of the url of the Google Sheets document, right after the
- `gid=`.
+ found at the end of the url of the Google Sheets document, right after the
+ `gid=`. Once complete, it triggers the [`FinishedRemoveRow`](#GoogleSheets.FinishedRemoveRow)
+ callback event.
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.any})
 : Assigns the text in `data` to the cell at the provided cell reference. If there is already a value in this range, the old value be overriden by the new text.
 
 {:id="GoogleSheets.WriteCol" class="method"} <i/> WriteCol(*sheetName*{:.text},*colNumber*{:.number},*data*{:.list})
-: Given a list of values as `data`, this method will write the values to the column of the sheet. It will always start from the top row and continue downwards. If there are alreaddy values in that column, this method will override them with the new data. It will not erase the entire column, only the bits that overlap with this.
+: Given a list of values as `data`, writes the values in `data` to the column
+ of the sheet with the given `colNumber`. It will always start from the top
+ row and continue downwards. If there are already values in that column, this
+ method will override them with the new data. (Note: It will not erase the
+ entire column.) Once complete, it triggers the [`FinishedWriteCol`](#GoogleSheets.FinishedWriteCol)
+ callback event.
 
 {:id="GoogleSheets.WriteRange" class="method"} <i/> WriteRange(*sheetName*{:.text},*rangeReference*{:.text},*data*{:.list})
 : Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.

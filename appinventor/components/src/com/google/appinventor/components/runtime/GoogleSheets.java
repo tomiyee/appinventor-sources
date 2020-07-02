@@ -448,8 +448,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Row-wise Operations */
 
   /**
-   * On the page with the provided sheetName, this method will read the row at
-   * the given rowNumber and trigger the {@link #GotRowData()} callback event.
+   * On the page with the provided sheetName, reads the row at the given
+   * rowNumber and triggers the {@link #GotRowData()} callback event.
    */
   @SimpleFunction(
     description="On the page with the provided sheetName, this method will " +
@@ -502,7 +502,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * The callback event for the {@link #ReadRow()} block. The `rowDataList` is a
-   * list of cell values in order of increasing column number.
+   * list of text cell-values in order of increasing column number.
    */
   @SimpleEvent(
     description="The callback event for the ReadRow block. The `rowDataList` " +
@@ -580,11 +580,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
    * Given a list of values as `data`, appends the values in `data` to the next
    * empty row of the sheet. It will always start from the left most column and
    * continue to the right. Once complete, it triggers the {@link #FinishedAddRow()}
-   * callback event.
+   * callback event. Additionally, this returns the row number for the new row.
    */
   @SimpleFunction(
     description="Given a list of values as `data`, appends the values in " +
-      "`data` to the next empty row of the sheet.")
+      "`data` to the next empty row of the sheet. Additionally, this returns " +
+      "the row number for the new row.")
   public void AddRow (String sheetName, YailList data) {
     // Properly format the range
     final String rangeRef = sheetName + "!A1";
@@ -647,8 +648,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /**
    * Deletes the row with the given row number (1-indexed) from the table. This
    * does not clear the row, but removes it entirely. The sheet's grid id can be
-   * found at the nd of the url of the Google Sheets document, right after the
-   * `gid=`.
+   * found at the end of the url of the Google Sheets document, right after the
+   * `gid=`. Once complete, it triggers the {@link #FinishedRemoveRow()}
+   * callback event.
    */
   @SimpleFunction(
     description="Deletes the row with the given row number from the table." +
@@ -704,10 +706,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Column-wise Operations */
 
+  /**
+   * On the page with the provided sheetName, reads the column at the given
+   * colNumber and triggers the {@link #GotColData()} callback event.
+   */
   @SimpleFunction(
-    description="Begins an API call which will request the data stored in the " +
-      "column with the provided `colNumber` (1-indexed). The resulting data " +
-      "will be sent to the GotColData event block.")
+    description="On the page with the provided sheetName, reads the column at " +
+      "the given colNumber and triggers the GotColData callback event.")
   public void ReadCol (String sheetName, int colNumber) {
 
     // Converts the col number to the corresponding letter
@@ -752,6 +757,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #ReadCol()} block. The `colDataList` is a
+   * list of text cell-values in order of increasing row number.
+   */
   @SimpleEvent(
     description="After calling the ReadCol method, the data in the column will " +
       "be stored as a list of text values in `colDataList`.")
@@ -760,12 +769,18 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     EventDispatcher.dispatchEvent(this, "GotColData", colDataList);
   }
 
+  /**
+   * Given a list of values as `data`, writes the values in `data` to the column
+   * of the sheet with the given `colNumber`. It will always start from the top
+   * row and continue downwards. If there are already values in that column, this
+   * method will override them with the new data. (Note: It will not erase the
+   * entire column.) Once complete, it triggers the {@link #FinishedWriteCol()}
+   * callback event.
+   */
   @SimpleFunction(
     description="Given a list of values as `data`, this method will write the " +
-      "values to the column of the sheet. It will always start from the top " +
-      "row and continue downwards. If there are alreaddy values in that " +
-      "column, this method will override them with the new data. It will not " +
-      "erase the entire column, only the bits that overlap with this.")
+      "values to the column of the sheet and calls the FinishedWriteCol event " +
+      "once complete.")
   public void WriteCol (String sheetName, int colNumber, YailList data) {
 
     // Converts the col number to the corresponding letter
@@ -811,16 +826,26 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #WriteCol()} block, called once the
+   * values on the table have been updated.
+   */
   @SimpleEvent(
-    description="This event will be triggered once the WriteCol method has " +
-      "finished executing and the values on the spreadsheet have been updated.")
+    description="The callback event for the WriteCol block, called once the" +
+      "values on the table have been updated.")
   public void FinishedWriteCol () {
     EventDispatcher.dispatchEvent(this, "FinishedWriteCol");
   }
 
+  /**
+   * Given a list of values as `data`, appends the values in `data` to the next
+   * empty column of the sheet. It will always start from the top row and
+   * continue downwards. Once complete, it triggers the {@link #FinishedAddCol()}
+   * callback event.
+   */
   @SimpleFunction(
-    description="Given a list of values as `data`, this method will write the " +
-      "values to the next empty column in the sheet with the provided sheetName. ")
+    description="Given a list of values as `data`, appends the values in " +
+      "`data` to the next empty column of the sheet.")
   public void AddCol (final String sheetName, YailList data) {
 
     // Generates the body, which are the values to assign to the range
@@ -884,20 +909,29 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #AddCol()} block, called once the
+   * values on the table have been updated. Additionally, this returns the
+   * column number for the new column.
+   */
   @SimpleEvent(
     description="This event will be triggered once the AddCol method has " +
       "finished executing and the values on the spreadsheet have been updated. " +
-      "Additionally, this returns the column number for the column you've just " +
-      "appended.")
+      "Additionally, this returns the column number for the new column.")
   public void FinishedAddCol (final int columnNumber) {
     EventDispatcher.dispatchEvent(this, "FinishedAddCol", columnNumber);
   }
 
+  /**
+   * Deletes the column with the given column number from the table. This does
+   * not clear the column, but removes it entirely. The sheet's grid id can be
+   * found at the end of the url of the Google Sheets document, right after the
+   * `gid=`. Once complete, it triggers the {@link #FinishedRemoveCol()}
+   * callback event.
+   */
   @SimpleFunction(
-    description="Deletes the column with the given column number (1-indexed) " +
-      "from the sheets page with the grid ID `gridId`. This does not clear the " +
-      "column, but removes it entirely. The sheet's grid id can be found at the " +
-      "end of the url of the Google Sheets document, right after the `gid=`.")
+    description="Deletes the column with the given column number from the table." +
+      "This does not clear the column, but removes it entirely.")
   public void RemoveCol (final int gridId, final int colNumber) {
 
     AsynchUtil.runAsynchronously(new Runnable() {
@@ -936,9 +970,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #RemoveCol()} block, called once the
+   * values on the table have been updated.
+   */
   @SimpleEvent(
-    description="This event will be triggered once the RemoveCol method has " +
-      "finished executing and the column on the spreadsheet have been removed.")
+    description="The callback event for the RemoveCol block, called once the " +
+      "values on the table have been updated.")
   public void FinishedRemoveCol () {
     EventDispatcher.dispatchEvent(this, "FinishedRemoveCol");
   }
