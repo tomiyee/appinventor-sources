@@ -983,12 +983,15 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Cell-wise Operations */
 
+  /**
+   * On the page with the provided sheetName, reads the cell at the given
+   * cellReference and triggers the {@link #GotCellData()} callback event. The
+   * cellReference can be either a text block with A1-Notation, or the result of
+   * the {@link #getCellReference()} block.
+   */
   @SimpleFunction(
-    description="Begins an API call which will request the data stored in the " +
-      "cell with the provided cell reference. This cell reference can be the " +
-      "result of the getCellReference block, or a text block with the correct " +
-      "A1 notation. The resulting cell data will be sent to the GotCellData " +
-      "event block.")
+    description="On the page with the provided sheetName, reads the cell at " +
+      "the given cellReference and triggers the GotCellData callback event.")
   public void ReadCell (final String sheetName, final String cellReference) {
 
     // 1. Check that the Cell Reference is actually a single cell
@@ -1038,18 +1041,27 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #ReadCell()} block. The `cellData` is
+   * the text value in the cell (and not the underlying formula).
+   */
   @SimpleEvent(
-    description="After calling the ReadCell method, the data in the cell will " +
-      "be stored as text in `cellData`.")
+    description="The callback event for the ReadCell block. The `cellData` " +
+      "is the text value in the cell (and not the underlying formula).")
   public void GotCellData(final String cellData) {
     Log.d(LOG_TAG, "GotCellData got: " + cellData);
     EventDispatcher.dispatchEvent(this, "GotCellData", cellData);
   }
 
+  /**
+   * Given text or a number as `data`, writes the value into the cell as if you
+   * typed it yourself. (Thus, most formulas should work). It will override any
+   * existing data in the cell with the one provided. Once complete, it triggers
+   * the {@link #FinishedWriteCell()} callback event.
+   */
   @SimpleFunction(
-    description="Assigns the text in `data` to the cell at the provided cell " +
-      "reference. If there is already a value in this range, the old value " +
-      "be overriden by the new text.")
+    description="Given text or a number as `data`, writes the value into the " +
+      "cell. Once complete, it triggers the FinishedWriteCell callback event")
   public void WriteCell (String sheetName, String cellReference, Object data) {
     // Generates the A1 Reference for the operation
     final String rangeRef = sheetName + "!" + cellReference;
@@ -1093,21 +1105,26 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #WriteCell()} block.
+   */
   @SimpleEvent(
-    description="This event will be triggered once the WriteCell method has " +
-      "finished executing and the cell on the spreadsheet has been updated.")
+    description="The callback event for the WriteCell block.")
   public void FinishedWriteCell () {
     EventDispatcher.dispatchEvent(this, "FinishedWriteCell");
   }
 
   /* Range-wise Operations */
 
+  /**
+   * On the page with the provided sheetName, reads the cells at the given
+   * cellReference and triggers the {@link #GotRangeData()} callback event. The
+   * rangeReference can be either a text block with A1-Notation, or the result
+   * of the {@link #getRangeReference()} block.
+   */
   @SimpleFunction(
-    description="Begins an API call which will request the data stored in the " +
-      "range with the provided range reference. This range reference can be " +
-      "the result of the getRangeReference block, or a text block with the " +
-      "correct A1 notation. The resulting range data will be sent to the " +
-      "GotRangeData event block.")
+    description="On the page with the provided sheetName, reads the cells at " +
+      "the given range. Triggers the getRangeReference once complete.")
   public void ReadRange (final String sheetName, final String rangeReference) {
 
     // (TODO) Check if the rangeReference is a valid A1 Format
@@ -1158,19 +1175,29 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #ReadRange()} block. The `rangeData` is
+   * a list of rows with the requested dimensions.
+   */
   @SimpleEvent(
-    description="After calling the ReadRange method, the data in the range will " +
-      "be stored as a list of rows, where every row is another list of text, in " +
-      "`rangeData`.")
+    description="The callback event for the ReadRange block. The `rangeData` " +
+      "is a list of rows with the requested dimensions.")
   public void GotRangeData (List<List<String>> rangeData) {
     Log.d(LOG_TAG, "GotRangeData got: " + rangeData);
     EventDispatcher.dispatchEvent(this, "GotRangeData", rangeData);
   }
 
+  /**
+   * Given list of lists as `data`, writes the values into the range as if you
+   * typed it yourself. The number of rows and columns in the range must match
+   * the dimensions of your data. This method will override existing data in the
+   * range with the data provided. Once complete, it triggers the
+   * {@link #FinishedWriteRange()} callback event.
+   */
   @SimpleFunction(
-    description="Assigns the values in the data value, which is a list of lists, " +
-      "to the range that you specify. The number of rows and columns in the range " +
-      "reference must match the dimensions of the 2D list provided in data.")
+    description="Given list of lists as `data`, writes the values into the " +
+      "range. The number of rows and columns in the range reference must " +
+      "match the dimensions of the data.")
   public void WriteRange (String sheetName, String rangeReference, YailList data) {
 
     // (TODO) Check that the range reference is in A1 notatoin
@@ -1234,9 +1261,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #WriteRange()} block.
+   */
   @SimpleEvent(
-    description="This event will be triggered once the WriteRange method has " +
-      "finished executing and the range on the spreadsheet has been updated.")
+    description="The callback event for the WriteRange block.")
   public void FinishedWriteRange () {
     EventDispatcher.dispatchEvent(this, "FinishedWriteRange");
   }

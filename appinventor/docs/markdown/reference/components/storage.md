@@ -219,21 +219,22 @@ GoogleSheets is a non-visible component for storing and receiving data from
  values on the table have been updated.
 
 {:id="GoogleSheets.FinishedWriteCell"} FinishedWriteCell()
-: This event will be triggered once the WriteCell method has finished executing and the cell on the spreadsheet has been updated.
+: The callback event for the [`WriteCell`](#GoogleSheets.WriteCell) block.
 
 {:id="GoogleSheets.FinishedWriteCol"} FinishedWriteCol()
 : The callback event for the [`WriteCol`](#GoogleSheets.WriteCol) block, called once the
  values on the table have been updated.
 
 {:id="GoogleSheets.FinishedWriteRange"} FinishedWriteRange()
-: This event will be triggered once the WriteRange method has finished executing and the range on the spreadsheet has been updated.
+: The callback event for the [`WriteRange`](#GoogleSheets.WriteRange) block.
 
 {:id="GoogleSheets.FinishedWriteRow"} FinishedWriteRow()
 : The callback event for the [`WriteRow`](#GoogleSheets.WriteRow) block, called once the
  values on the table have been updated.
 
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
-: After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.
+: The callback event for the [`ReadCell`](#GoogleSheets.ReadCell) block. The `cellData` is
+ the text value in the cell (and not the underlying formula).
 
 {:id="GoogleSheets.GotColData"} GotColData(*colDataList*{:.list})
 : The callback event for the [`ReadCol`](#GoogleSheets.ReadCol) block. The `colDataList` is a
@@ -245,7 +246,8 @@ GoogleSheets is a non-visible component for storing and receiving data from
  similar to that of `rangeData` in the GotRangeData event block.
 
 {:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeData*{:.list})
-: After calling the ReadRange method, the data in the range will be stored as a list of rows, where every row is another list of text, in `rangeData`.
+: The callback event for the [`ReadRange`](#GoogleSheets.ReadRange) block. The `rangeData` is
+ a list of rows with the requested dimensions.
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
 : The callback event for the [`ReadRow`](#GoogleSheets.ReadRow) block. The `rowDataList` is a
@@ -282,14 +284,20 @@ GoogleSheets is a non-visible component for storing and receiving data from
  range from row 1, col 2 to row 3, col 4 corresponds to the string "B1:D3".
 
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
-: Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.
+: On the page with the provided sheetName, reads the cell at the given
+ cellReference and triggers the [`GotCellData`](#GoogleSheets.GotCellData) callback event. The
+ cellReference can be either a text block with A1-Notation, or the result of
+ the [`getCellReference`](#GoogleSheets.getCellReference) block.
 
 {:id="GoogleSheets.ReadCol" class="method"} <i/> ReadCol(*sheetName*{:.text},*colNumber*{:.number})
 : On the page with the provided sheetName, reads the column at the given
  colNumber and triggers the [`GotColData`](#GoogleSheets.GotColData) callback event.
 
 {:id="GoogleSheets.ReadRange" class="method"} <i/> ReadRange(*sheetName*{:.text},*rangeReference*{:.text})
-: Begins an API call which will request the data stored in the range with the provided range reference. This range reference can be the result of the getRangeReference block, or a text block with the correct A1 notation. The resulting range data will be sent to the GotRangeData event block.
+: On the page with the provided sheetName, reads the cells at the given
+ cellReference and triggers the [`GotRangeData`](#GoogleSheets.GotRangeData) callback event. The
+ rangeReference can be either a text block with A1-Notation, or the result
+ of the [`getRangeReference`](#GoogleSheets.getRangeReference) block.
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
 : On the page with the provided sheetName, reads the row at the given
@@ -323,7 +331,10 @@ GoogleSheets is a non-visible component for storing and receiving data from
  callback event.
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.any})
-: Assigns the text in `data` to the cell at the provided cell reference. If there is already a value in this range, the old value be overriden by the new text.
+: Given text or a number as `data`, writes the value into the cell as if you
+ typed it yourself. (Thus, most formulas should work). It will override any
+ existing data in the cell with the one provided. Once complete, it triggers
+ the [`FinishedWriteCell`](#GoogleSheets.FinishedWriteCell) callback event.
 
 {:id="GoogleSheets.WriteCol" class="method"} <i/> WriteCol(*sheetName*{:.text},*colNumber*{:.number},*data*{:.list})
 : Given a list of values as `data`, writes the values in `data` to the column
@@ -334,7 +345,11 @@ GoogleSheets is a non-visible component for storing and receiving data from
  callback event.
 
 {:id="GoogleSheets.WriteRange" class="method"} <i/> WriteRange(*sheetName*{:.text},*rangeReference*{:.text},*data*{:.list})
-: Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.
+: Given list of lists as `data`, writes the values into the range as if you
+ typed it yourself. The number of rows and columns in the range must match
+ the dimensions of your data. This method will override existing data in the
+ range with the data provided. Once complete, it triggers the
+ [`FinishedWriteRange`](#GoogleSheets.FinishedWriteRange) callback event.
 
 {:id="GoogleSheets.WriteRow" class="method"} <i/> WriteRow(*sheetName*{:.text},*rowNumber*{:.number},*data*{:.list})
 : Given a list of values as `data`, writes the values in `data` to the row of

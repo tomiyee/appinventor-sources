@@ -310,17 +310,18 @@
   <dd>The callback event for the <a href="#GoogleSheets.RemoveRow"><code class="highlighter-rouge">RemoveRow</code></a> block, called once the
  values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedWriteCell">FinishedWriteCell()</dt>
-  <dd>This event will be triggered once the WriteCell method has finished executing and the cell on the spreadsheet has been updated.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.WriteCell"><code class="highlighter-rouge">WriteCell</code></a> block.</dd>
   <dt id="GoogleSheets.FinishedWriteCol">FinishedWriteCol()</dt>
   <dd>The callback event for the <a href="#GoogleSheets.WriteCol"><code class="highlighter-rouge">WriteCol</code></a> block, called once the
  values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedWriteRange">FinishedWriteRange()</dt>
-  <dd>This event will be triggered once the WriteRange method has finished executing and the range on the spreadsheet has been updated.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.WriteRange"><code class="highlighter-rouge">WriteRange</code></a> block.</dd>
   <dt id="GoogleSheets.FinishedWriteRow">FinishedWriteRow()</dt>
   <dd>The callback event for the <a href="#GoogleSheets.WriteRow"><code class="highlighter-rouge">WriteRow</code></a> block, called once the
  values on the table have been updated.</dd>
   <dt id="GoogleSheets.GotCellData">GotCellData(<em class="text">cellData</em>)</dt>
-  <dd>After calling the ReadCell method, the data in the cell will be stored as text in <code class="highlighter-rouge">cellData</code>.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.ReadCell"><code class="highlighter-rouge">ReadCell</code></a> block. The <code class="highlighter-rouge">cellData</code> is
+ the text value in the cell (and not the underlying formula).</dd>
   <dt id="GoogleSheets.GotColData">GotColData(<em class="list">colDataList</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.ReadCol"><code class="highlighter-rouge">ReadCol</code></a> block. The <code class="highlighter-rouge">colDataList</code> is a
  list of text cell-values in order of increasing row number.</dd>
@@ -329,7 +330,8 @@
  is a list of rows, where each row is a list of cell data. The structure is
  similar to that of <code class="highlighter-rouge">rangeData</code> in the GotRangeData event block.</dd>
   <dt id="GoogleSheets.GotRangeData">GotRangeData(<em class="list">rangeData</em>)</dt>
-  <dd>After calling the ReadRange method, the data in the range will be stored as a list of rows, where every row is another list of text, in <code class="highlighter-rouge">rangeData</code>.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.ReadRange"><code class="highlighter-rouge">ReadRange</code></a> block. The <code class="highlighter-rouge">rangeData</code> is
+ a list of rows with the requested dimensions.</dd>
   <dt id="GoogleSheets.GotRowData">GotRowData(<em class="list">rowDataList</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.ReadRow"><code class="highlighter-rouge">ReadRow</code></a> block. The <code class="highlighter-rouge">rowDataList</code> is a
  list of text cell-values in order of increasing column number.</dd>
@@ -360,12 +362,18 @@
  the range to A1-Notation used in Google Sheets. For example, selecting the
  range from row 1, col 2 to row 3, col 4 corresponds to the string “B1:D3”.</dd>
   <dt id="GoogleSheets.ReadCell" class="method"><i></i> ReadCell(<em class="text">sheetName</em>,<em class="text">cellReference</em>)</dt>
-  <dd>Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.</dd>
+  <dd>On the page with the provided sheetName, reads the cell at the given
+ cellReference and triggers the <a href="#GoogleSheets.GotCellData"><code class="highlighter-rouge">GotCellData</code></a> callback event. The
+ cellReference can be either a text block with A1-Notation, or the result of
+ the <a href="#GoogleSheets.getCellReference"><code class="highlighter-rouge">getCellReference</code></a> block.</dd>
   <dt id="GoogleSheets.ReadCol" class="method"><i></i> ReadCol(<em class="text">sheetName</em>,<em class="number">colNumber</em>)</dt>
   <dd>On the page with the provided sheetName, reads the column at the given
  colNumber and triggers the <a href="#GoogleSheets.GotColData"><code class="highlighter-rouge">GotColData</code></a> callback event.</dd>
   <dt id="GoogleSheets.ReadRange" class="method"><i></i> ReadRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>)</dt>
-  <dd>Begins an API call which will request the data stored in the range with the provided range reference. This range reference can be the result of the getRangeReference block, or a text block with the correct A1 notation. The resulting range data will be sent to the GotRangeData event block.</dd>
+  <dd>On the page with the provided sheetName, reads the cells at the given
+ cellReference and triggers the <a href="#GoogleSheets.GotRangeData"><code class="highlighter-rouge">GotRangeData</code></a> callback event. The
+ rangeReference can be either a text block with A1-Notation, or the result
+ of the <a href="#GoogleSheets.getRangeReference"><code class="highlighter-rouge">getRangeReference</code></a> block.</dd>
   <dt id="GoogleSheets.ReadRow" class="method"><i></i> ReadRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>)</dt>
   <dd>On the page with the provided sheetName, reads the row at the given
  rowNumber and triggers the <a href="#GoogleSheets.GotRowData"><code class="highlighter-rouge">GotRowData</code></a> callback event.</dd>
@@ -393,7 +401,10 @@
  <code class="highlighter-rouge">gid=</code>. Once complete, it triggers the <a href="#GoogleSheets.FinishedRemoveRow"><code class="highlighter-rouge">FinishedRemoveRow</code></a>
  callback event.</dd>
   <dt id="GoogleSheets.WriteCell" class="method"><i></i> WriteCell(<em class="text">sheetName</em>,<em class="text">cellReference</em>,<em class="any">data</em>)</dt>
-  <dd>Assigns the text in <code class="highlighter-rouge">data</code> to the cell at the provided cell reference. If there is already a value in this range, the old value be overriden by the new text.</dd>
+  <dd>Given text or a number as <code class="highlighter-rouge">data</code>, writes the value into the cell as if you
+ typed it yourself. (Thus, most formulas should work). It will override any
+ existing data in the cell with the one provided. Once complete, it triggers
+ the <a href="#GoogleSheets.FinishedWriteCell"><code class="highlighter-rouge">FinishedWriteCell</code></a> callback event.</dd>
   <dt id="GoogleSheets.WriteCol" class="method"><i></i> WriteCol(<em class="text">sheetName</em>,<em class="number">colNumber</em>,<em class="list">data</em>)</dt>
   <dd>Given a list of values as <code class="highlighter-rouge">data</code>, writes the values in <code class="highlighter-rouge">data</code> to the column
  of the sheet with the given <code class="highlighter-rouge">colNumber</code>. It will always start from the top
@@ -402,7 +413,11 @@
  entire column.) Once complete, it triggers the <a href="#GoogleSheets.FinishedWriteCol"><code class="highlighter-rouge">FinishedWriteCol</code></a>
  callback event.</dd>
   <dt id="GoogleSheets.WriteRange" class="method"><i></i> WriteRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>,<em class="list">data</em>)</dt>
-  <dd>Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.</dd>
+  <dd>Given list of lists as <code class="highlighter-rouge">data</code>, writes the values into the range as if you
+ typed it yourself. The number of rows and columns in the range must match
+ the dimensions of your data. This method will override existing data in the
+ range with the data provided. Once complete, it triggers the
+ <a href="#GoogleSheets.FinishedWriteRange"><code class="highlighter-rouge">FinishedWriteRange</code></a> callback event.</dd>
   <dt id="GoogleSheets.WriteRow" class="method"><i></i> WriteRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>,<em class="list">data</em>)</dt>
   <dd>Given a list of values as <code class="highlighter-rouge">data</code>, writes the values in <code class="highlighter-rouge">data</code> to the row of
  the sheet with the given row number. It will always start from the left
