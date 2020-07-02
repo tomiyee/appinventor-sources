@@ -1445,6 +1445,11 @@ Blockly.Msg.en.switch_language_to_english = {
     Blockly.Msg.LANG_COMPONENT_BLOCK_FUSIONTABLESCONTROL_EVENTS_HELPURL = '/reference/components/storage.html#FusionTablesControl';
     Blockly.Msg.LANG_COMPONENT_BLOCK_FUSIONTABLESCONTROL_METHODS_HELPURL = '/reference/components/storage.html#FusionTablesControl';
 
+    Blockly.Msg.LANG_COMPONENT_BLOCK_GOOGLESHEETS_HELPURL = "/reference/components/storage.html#GoogleSheets";
+    Blockly.Msg.LANG_COMPONENT_BLOCK_GOOGLESHEETS_PROPERTIES_HELPURL = '/reference/components/storage.html#GoogleSheets';
+    Blockly.Msg.LANG_COMPONENT_BLOCK_GOOGLESHEETS_EVENTS_HELPURL = '/reference/components/storage.html#GoogleSheets';
+    Blockly.Msg.LANG_COMPONENT_BLOCK_GOOGLESHEETS_METHODS_HELPURL = '/reference/components/storage.html#GoogleSheets';
+
     Blockly.Msg.LANG_COMPONENT_BLOCK_FILE_HELPURL = "/reference/components/storage.html#File";
 
     Blockly.Msg.LANG_COMPONENT_BLOCK_TINYDB_HELPURL = '/reference/components/storage.html#TinyDB';

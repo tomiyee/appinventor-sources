@@ -165,7 +165,19 @@ None
 
 ## GoogleSheets  {#GoogleSheets}
 
-Appinventor Google Sheets Component
+GoogleSheets is a non-visible component for storing and receiving data from
+ a Google Sheets document using the Google Sheets API.
+
+ In order to utilize this component, one must first have a Google Developer
+ Account. Then, one must create a new project under that Google Developer
+ Account, enable the Google Sheets API on that project, and finally create a
+ Service Account for the Sheets API.
+
+ Instructions on how to create the Service Account, as well as where to find
+ other relevant information for using the Google Sheets Component, can be
+ found <a href='https://docs.google.com/document/d/1PurfpFV6_ncXq-SvMKCF7_xBHKTWF10L1LqmHoSTUF4/edit?usp=sharing'>here</a>.
+
+ All variables for row number and column numbers are 1-indexed.
 
 
 
@@ -187,19 +199,21 @@ Appinventor Google Sheets Component
 {:.events}
 
 {:id="GoogleSheets.ErrorOccurred"} ErrorOccurred(*errorMessage*{:.text})
-: This event block is triggered whenever an API call encounters an error. Text with details about the error can be found in `errorMessage`
+: Triggered whenever an API call encounters an error. Details about the error are in `errorMessage`
 
 {:id="GoogleSheets.FinishedAddCol"} FinishedAddCol(*columnNumber*{:.number})
 : This event will be triggered once the AddCol method has finished executing and the values on the spreadsheet have been updated. Additionally, this returns the column number for the column you've just appended.
 
 {:id="GoogleSheets.FinishedAddRow"} FinishedAddRow(*rowNumber*{:.number})
-: This event will be triggered once the AddRow method has finished executing and the values on the spreadsheet have been updated. Additionally, this returns the row number for the row you've just added.
+: The callback event for the [`AddRow`](#GoogleSheets.AddRow) block, called once the
+ values on the table have been updated.
 
 {:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
 : This event will be triggered once the RemoveCol method has finished executing and the column on the spreadsheet have been removed.
 
 {:id="GoogleSheets.FinishedRemoveRow"} FinishedRemoveRow()
-: This event will be triggered once the RemoveRow method has finished executing and the row on the spreadsheet have been removed.
+: The callback event for the [`RemoveRow`](#GoogleSheets.RemoveRow) block, called once the
+ values on the table have been updated.
 
 {:id="GoogleSheets.FinishedWriteCell"} FinishedWriteCell()
 : This event will be triggered once the WriteCell method has finished executing and the cell on the spreadsheet has been updated.
@@ -211,7 +225,8 @@ Appinventor Google Sheets Component
 : This event will be triggered once the WriteRange method has finished executing and the range on the spreadsheet has been updated.
 
 {:id="GoogleSheets.FinishedWriteRow"} FinishedWriteRow()
-: This event will be triggered once the WriteRow method has finished executing and the values on the spreadsheet have been updated.
+: The callback event for the [`WriteRow`](#GoogleSheets.WriteRow) block, called once the
+ values on the table have been updated.
 
 {:id="GoogleSheets.GotCellData"} GotCellData(*cellData*{:.text})
 : After calling the ReadCell method, the data in the cell will be stored as text in `cellData`.
@@ -220,13 +235,16 @@ Appinventor Google Sheets Component
 : After calling the ReadCol method, the data in the column will be stored as a list of text values in `colDataList`.
 
 {:id="GoogleSheets.GotQueryResult"} GotQueryResult(*response*{:.list})
-: The result of the GetRowsWithQuery call. The response is a list of lists, similar to the result of GetRange.
+: The callbeck event for the [`ReadWithQuery`](#GoogleSheets.ReadWithQuery) block. The `response`
+ is a list of rows, where each row is a list of cell data. The structure is
+ similar to that of `rangeData` in the GotRangeData event block.
 
 {:id="GoogleSheets.GotRangeData"} GotRangeData(*rangeData*{:.list})
 : After calling the ReadRange method, the data in the range will be stored as a list of rows, where every row is another list of text, in `rangeData`.
 
 {:id="GoogleSheets.GotRowData"} GotRowData(*rowDataList*{:.list})
-: After calling the ReadRow method, the data in the row will be stored as a list of text values in rowDataList.
+: The callback event for the [`ReadRow`](#GoogleSheets.ReadRow) block. The `rowDataList` is a
+ list of cell values in order of increasing column number.
 
 {:id="GoogleSheets.GotSheetData"} GotSheetData(*sheetData*{:.list})
 : After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in `sheetData`.
@@ -239,13 +257,20 @@ Appinventor Google Sheets Component
 : Given a list of values as `data`, this method will write the values to the next empty column in the sheet with the provided sheetName.
 
 {:id="GoogleSheets.AddRow" class="method"} <i/> AddRow(*sheetName*{:.text},*data*{:.list})
-: Given a list of values as `data`, this method will write the values to the next empty row in the sheet with the provided sheetName.
+: Given a list of values as `data`, appends the values in `data` to the next
+ empty row of the sheet. It will always start from the left most column and
+ continue to the right. Once complete, it triggers the [`FinishedAddRow`](#GoogleSheets.FinishedAddRow)
+ callback event.
 
 {:id="GoogleSheets.GetCellReference" class="method returns text"} <i/> GetCellReference(*row*{:.number},*col*{:.number})
-: Converts the integer representation of rows and columns to the reference strings used in Google Sheets. For example, row 1 and col 2 corresponds to the string "B1".
+: Converts the integer representation of rows and columns to A1-Notation used
+ in Google Sheets for a single cell. For example, row 1 and col 2
+ corresponds to the string \"B1\".
 
 {:id="GoogleSheets.GetRangeReference" class="method returns text"} <i/> GetRangeReference(*row1*{:.number},*col1*{:.number},*row2*{:.number},*col2*{:.number})
-: Converts the integer representation of rows and columns for the corners of the range to the reference strings used in Google Sheets. For ex, selecting the range from row 1 col 2 to row 3 col 4 corresponds to the string "B1:D3"
+: Converts the integer representation of rows and columns for the corners of
+ the range to A1-Notation used in Google Sheets. For example, selecting the
+ range from row 1, col 2 to row 3, col 4 corresponds to the string "B1:D3".
 
 {:id="GoogleSheets.ReadCell" class="method"} <i/> ReadCell(*sheetName*{:.text},*cellReference*{:.text})
 : Begins an API call which will request the data stored in the cell with the provided cell reference. This cell reference can be the result of the getCellReference block, or a text block with the correct A1 notation. The resulting cell data will be sent to the GotCellData event block.
@@ -257,19 +282,28 @@ Appinventor Google Sheets Component
 : Begins an API call which will request the data stored in the range with the provided range reference. This range reference can be the result of the getRangeReference block, or a text block with the correct A1 notation. The resulting range data will be sent to the GotRangeData event block.
 
 {:id="GoogleSheets.ReadRow" class="method"} <i/> ReadRow(*sheetName*{:.text},*rowNumber*{:.number})
-: On the sheet with the provided sheet name, this method will read the row with the given number and returns the text that is found in each cell.
+: On the page with the provided sheetName, this method will read the row at
+ the given rowNumber and trigger the [`GotRowData`](#GoogleSheets.GotRowData) callback event.
 
 {:id="GoogleSheets.ReadSheet" class="method"} <i/> ReadSheet(*sheetName*{:.text})
 : Reads the *entire* Google Sheet document. It will then provide the values of the full sheet will be provided as a list of lists of text.
 
 {:id="GoogleSheets.ReadWithQuery" class="method"} <i/> ReadWithQuery(*gridId*{:.number},*query*{:.text})
-: (Requires that the Google Sheets document is public with link) Uses SQL-like queries to fetch data For info on the query, see Google's Query Language Reference.
+: (<b>Note:</b> This requires that the Google Sheets document is shared such
+ that <b>"Anyone with the link can view.""</b>) Uses the Google Query
+ Language, a language similar to SQL, to fetch data from publicly readable
+ Google Sheets. For information on the syntax, see Google's Query Language
+ Reference <a href='https://developers.google.com/chart/interactive/docs/querylanguage?hl=en'>
+ here</a>.
 
 {:id="GoogleSheets.RemoveCol" class="method"} <i/> RemoveCol(*gridId*{:.number},*colNumber*{:.number})
 : Deletes the column with the given column number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the column, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.
 
 {:id="GoogleSheets.RemoveRow" class="method"} <i/> RemoveRow(*gridId*{:.number},*rowNumber*{:.number})
-: Deletes the row with the given row number (1-indexed) from the sheets page with the grid ID `gridId`. This does not clear the row, but removes it entirely. The sheet's grid id can be found at the end of the url of the Google Sheets document, right after the `gid=`.
+: Deletes the row with the given row number (1-indexed) from the table. This
+ does not clear the row, but removes it entirely. The sheet's grid id can be
+ found at the nd of the url of the Google Sheets document, right after the
+ `gid=`.
 
 {:id="GoogleSheets.WriteCell" class="method"} <i/> WriteCell(*sheetName*{:.text},*cellReference*{:.text},*data*{:.any})
 : Assigns the text in `data` to the cell at the provided cell reference. If there is already a value in this range, the old value be overriden by the new text.
@@ -281,7 +315,12 @@ Appinventor Google Sheets Component
 : Assigns the values in the data value, which is a list of lists, to the range that you specify. The number of rows and columns in the range reference must match the dimensions of the 2D list provided in data.
 
 {:id="GoogleSheets.WriteRow" class="method"} <i/> WriteRow(*sheetName*{:.text},*rowNumber*{:.number},*data*{:.list})
-: Given a list of values as `data`, this method will write the values to the row of the sheet. It will always start from the left most column and continue to the right. If there are alreaddy values in that row, this method will override them with the new data. It will not erase the entire row.
+: Given a list of values as `data`, writes the values in `data` to the row of
+ the sheet with the given row number. It will always start from the left
+ most column and continue to the right. If there are already values in that
+ row, this method will override them with the new data. (Note: It will not
+ erase the entire row.) Once complete, it triggers the [`FinishedWriteRow`](#GoogleSheets.FinishedWriteRow)
+ callback event.
 
 ## TinyDB  {#TinyDB}
 
