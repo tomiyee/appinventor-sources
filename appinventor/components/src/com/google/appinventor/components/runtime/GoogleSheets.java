@@ -79,7 +79,7 @@ import java.util.ArrayList;
  * other relevant information for using the Google Sheets Component, can be
  * found <a href='https://docs.google.com/document/d/1PurfpFV6_ncXq-SvMKCF7_xBHKTWF10L1LqmHoSTUF4/edit?usp=sharing'>here</a>.
  *
- * All variables for row number and column numbers are 1-indexed.
+ * Row and column numbers are 1-indexed.
  */
 @DesignerComponent(version = YaVersion.GOOGLESHEETS_COMPONENT_VERSION,
     category = ComponentCategory.STORAGE,
@@ -166,8 +166,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Getter and Setters for Properties */
 
-  @SimpleProperty(
-    description = "The Credentials JSON file")
+  @SimpleProperty
   public String CredentialsJson() {
     return credentialsPath;
   }
@@ -175,13 +174,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   @DesignerProperty(
     editorType = PropertyTypeConstants.PROPERTY_TYPE_ASSET,
     defaultValue = "")
-  @SimpleProperty
+  @SimpleProperty(
+    description = "The JSON File with credentials for the Service Account")
   public void CredentialsJson (String credentialsPath) {
     this.credentialsPath = credentialsPath;
   }
 
-  @SimpleProperty(
-    description = "The ID you can find in the URL of the Google Sheets you want to edit")
+  @SimpleProperty
   public String SpreadsheetID() {
     return spreadsheetID;
   }
@@ -273,7 +272,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   @SimpleEvent(
     description="Triggered whenever an API call encounters an error. Details " +
-      "about the error are in `errorMessage`")
+      "about the error are in `errorMessage`.")
   public void ErrorOccurred (final String errorMessage) {
     final GoogleSheets thisInstance = this;
     activity.runOnUiThread(new Runnable() {
@@ -323,7 +322,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * (<b>Note:</b> This requires that the Google Sheets document is shared such
-   * that <b>"Anyone with the link can view.""</b>) Uses the Google Query
+   * that <b>"Anyone with the link can view."</b>) Uses the Google Query
    * Language, a language similar to SQL, to fetch data from publicly readable
    * Google Sheets. For information on the syntax, see Google's Query Language
    * Reference <a href='https://developers.google.com/chart/interactive/docs/querylanguage?hl=en'>
@@ -397,8 +396,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * The callbeck event for the {@link #ReadWithQuery()} block. The `response`
-   * is a list of rows, where each row is a list of cell data. The structure is
-   * similar to that of `rangeData` in the GotRangeData event block.
+   * is a list of rows, where each row satisfies the query.
    */
   @SimpleEvent(
     description="The callback event for the ReadWithQuery block. The " +
@@ -512,16 +510,14 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * Given a list of values as `data`, writes the values in `data` to the row of
-   * the sheet with the given row number. It will always start from the left
-   * most column and continue to the right. If there are already values in that
-   * row, this method will override them with the new data. (Note: It will not
-   * erase the entire row.) Once complete, it triggers the {@link #FinishedWriteRow()}
-   * callback event.
+   * Given a list of values as `data`, writes the values to the row  with the
+   * given row number, overriding existing values from left to right. (Note: It
+   * will not erase the entire row.) Once complete, it triggers the
+   * {@link #FinishedWriteRow()} callback event.
    */
   @SimpleFunction(
-    description="Given a list of values as `data`, writes the " +
-      "values in `data` to the row of the sheet with the given row number.")
+    description="Given a list of values as `data`, writes the values to the " +
+      "row of the sheet with the given row number.")
   public void WriteRow (String sheetName, int rowNumber, YailList data) {
 
     // Generates the A1 Reference for the operation
@@ -577,14 +573,14 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * Given a list of values as `data`, appends the values in `data` to the next
+   * Given a list of values as `data`, appends the values to the next
    * empty row of the sheet. It will always start from the left most column and
    * continue to the right. Once complete, it triggers the {@link #FinishedAddRow()}
    * callback event. Additionally, this returns the row number for the new row.
    */
   @SimpleFunction(
-    description="Given a list of values as `data`, appends the values in " +
-      "`data` to the next empty row of the sheet. Additionally, this returns " +
+    description="Given a list of values as `data`, appends the values " +
+      "to the next empty row of the sheet. Additionally, this returns " +
       "the row number for the new row.")
   public void AddRow (String sheetName, YailList data) {
     // Properly format the range
@@ -636,7 +632,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * The callback event for the {@link #AddRow()} block, called once the
-   * values on the table have been updated.
+   * values on the table have been updated. Additionally, this returns the
+   * row number for the new row.
    */
   @SimpleEvent(
     description="The callback event for the AddRow block, called once the " +
@@ -649,7 +646,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
    * Deletes the row with the given row number (1-indexed) from the table. This
    * does not clear the row, but removes it entirely. The sheet's grid id can be
    * found at the end of the url of the Google Sheets document, right after the
-   * `gid=`. Once complete, it triggers the {@link #FinishedRemoveRow()}
+   * "gid=". Once complete, it triggers the {@link #FinishedRemoveRow()}
    * callback event.
    */
   @SimpleFunction(
@@ -770,12 +767,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * Given a list of values as `data`, writes the values in `data` to the column
-   * of the sheet with the given `colNumber`. It will always start from the top
-   * row and continue downwards. If there are already values in that column, this
-   * method will override them with the new data. (Note: It will not erase the
-   * entire column.) Once complete, it triggers the {@link #FinishedWriteCol()}
-   * callback event.
+   * Given a list of values as `data`, writes the values to the column with the
+   * given column number, overriding existing values from top down. (Note: It
+   * will not erase the entire column.) Once complete, it triggers the
+   * {@link #FinishedWriteCol()} callback event.
    */
   @SimpleFunction(
     description="Given a list of values as `data`, this method will write the " +
@@ -838,14 +833,14 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * Given a list of values as `data`, appends the values in `data` to the next
-   * empty column of the sheet. It will always start from the top row and
-   * continue downwards. Once complete, it triggers the {@link #FinishedAddCol()}
+   * Given a list of values as `data`, appends the values to the next empty
+   * column of the sheet. It will always start from the top row and continue
+   * downwards. Once complete, it triggers the {@link #FinishedAddCol()}
    * callback event.
    */
   @SimpleFunction(
-    description="Given a list of values as `data`, appends the values in " +
-      "`data` to the next empty column of the sheet.")
+    description="Given a list of values as `data`, appends the values to the " +
+      "next empty column of the sheet.")
   public void AddCol (final String sheetName, YailList data) {
 
     // Generates the body, which are the values to assign to the range
@@ -926,7 +921,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
    * Deletes the column with the given column number from the table. This does
    * not clear the column, but removes it entirely. The sheet's grid id can be
    * found at the end of the url of the Google Sheets document, right after the
-   * `gid=`. Once complete, it triggers the {@link #FinishedRemoveCol()}
+   * "gid=". Once complete, it triggers the {@link #FinishedRemoveCol()}
    * callback event.
    */
   @SimpleFunction(
@@ -1043,7 +1038,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * The callback event for the {@link #ReadCell()} block. The `cellData` is
-   * the text value in the cell (and not the underlying formula).
+   * the text value in the cell.
    */
   @SimpleEvent(
     description="The callback event for the ReadCell block. The `cellData` " +
@@ -1054,10 +1049,9 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * Given text or a number as `data`, writes the value into the cell as if you
-   * typed it yourself. (Thus, most formulas should work). It will override any
-   * existing data in the cell with the one provided. Once complete, it triggers
-   * the {@link #FinishedWriteCell()} callback event.
+   * Given text or a number as `data`, writes the value to the cell. It will
+   * override any existing data in the cell with the one provided. Once complete,
+   * it triggers the {@link #FinishedWriteCell()} callback event.
    */
   @SimpleFunction(
     description="Given text or a number as `data`, writes the value into the " +
@@ -1106,7 +1100,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * The callback event for the {@link #WriteCell()} block.
+   * The callback event for the {@link #WriteCell()} block, called once the
+   * values on the table have been updated.
    */
   @SimpleEvent(
     description="The callback event for the WriteCell block.")
@@ -1118,7 +1113,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * On the page with the provided sheetName, reads the cells at the given
-   * cellReference and triggers the {@link #GotRangeData()} callback event. The
+   * rangeReference and triggers the {@link #GotRangeData()} callback event. The
    * rangeReference can be either a text block with A1-Notation, or the result
    * of the {@link #getRangeReference()} block.
    */
@@ -1177,7 +1172,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /**
    * The callback event for the {@link #ReadRange()} block. The `rangeData` is
-   * a list of rows with the requested dimensions.
+   * a list of rows, where the dimensions are the same as the rangeReference.
    */
   @SimpleEvent(
     description="The callback event for the ReadRange block. The `rangeData` " +
@@ -1188,11 +1183,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * Given list of lists as `data`, writes the values into the range as if you
-   * typed it yourself. The number of rows and columns in the range must match
-   * the dimensions of your data. This method will override existing data in the
-   * range with the data provided. Once complete, it triggers the
-   * {@link #FinishedWriteRange()} callback event.
+   * Given list of lists as `data`, writes the values to cells in the range. The
+   * number of rows and columns in the range must match the dimensions of your
+   * data. This method will override existing data in the range. Once complete,
+   * it triggers the {@link #FinishedWriteRange()} callback event.
    */
   @SimpleFunction(
     description="Given list of lists as `data`, writes the values into the " +
@@ -1262,7 +1256,8 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   }
 
   /**
-   * The callback event for the {@link #WriteRange()} block.
+   * The callback event for the {@link #WriteRange()} block, called once the
+   * values on the table have been updated.
    */
   @SimpleEvent(
     description="The callback event for the WriteRange block.")
@@ -1273,14 +1268,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
   /* Sheet-wise Operations */
 
   /**
-   * Reads the <b>entire</b> Google Sheets document. It will provide the values
-   * of the entire sheet as a list of rows in the {@link #GotSheetData()}
-   * callback event.
+   * Reads the <b>entire</b> Google Sheets document and triggers the
+   * {@link #GotSheetData()} callback event.
    */
   @SimpleFunction(
-    description="Reads the *entire* Google Sheet document. It will provide " +
-      "the values of the entire sheet as a list of rows in the GotSheetData " +
-      "callback event.")
+    description="Reads the *entire* Google Sheet document and triggers the " +
+      "GotSheetData callback event.")
   public void ReadSheet (final String sheetName) {
 
     // Asynchronously fetch the data in the cell

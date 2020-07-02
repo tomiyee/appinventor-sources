@@ -278,7 +278,7 @@
  other relevant information for using the Google Sheets Component, can be
  found <a href="https://docs.google.com/document/d/1PurfpFV6_ncXq-SvMKCF7_xBHKTWF10L1LqmHoSTUF4/edit?usp=sharing">here</a>.</p>
 
-<p>All variables for row number and column numbers are 1-indexed.</p>
+<p>Row and column numbers are 1-indexed.</p>
 
 <h3 id="GoogleSheets-Properties">Properties</h3>
 
@@ -286,7 +286,7 @@
   <dt id="GoogleSheets.ApplicationName" class="text do"><em>ApplicationName</em></dt>
   <dd>The name of your application, used when making API calls.</dd>
   <dt id="GoogleSheets.CredentialsJson" class="text"><em>CredentialsJson</em></dt>
-  <dd>Property for CredentialsJson</dd>
+  <dd>The JSON File with credentials for the Service Account</dd>
   <dt id="GoogleSheets.SpreadsheetID" class="text"><em>SpreadsheetID</em></dt>
   <dd>The ID for the Google Sheets file you want to edit. You can find the spreadsheetID in the URL of the Google Sheets file.</dd>
 </dl>
@@ -295,14 +295,15 @@
 
 <dl class="events">
   <dt id="GoogleSheets.ErrorOccurred">ErrorOccurred(<em class="text">errorMessage</em>)</dt>
-  <dd>Triggered whenever an API call encounters an error. Details about the error are in <code class="highlighter-rouge">errorMessage</code></dd>
+  <dd>Triggered whenever an API call encounters an error. Details about the error are in <code class="highlighter-rouge">errorMessage</code>.</dd>
   <dt id="GoogleSheets.FinishedAddCol">FinishedAddCol(<em class="number">columnNumber</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.AddCol"><code class="highlighter-rouge">AddCol</code></a> block, called once the
  values on the table have been updated. Additionally, this returns the
  column number for the new column.</dd>
   <dt id="GoogleSheets.FinishedAddRow">FinishedAddRow(<em class="number">rowNumber</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.AddRow"><code class="highlighter-rouge">AddRow</code></a> block, called once the
- values on the table have been updated.</dd>
+ values on the table have been updated. Additionally, this returns the
+ row number for the new row.</dd>
   <dt id="GoogleSheets.FinishedRemoveCol">FinishedRemoveCol()</dt>
   <dd>The callback event for the <a href="#GoogleSheets.RemoveCol"><code class="highlighter-rouge">RemoveCol</code></a> block, called once the
  values on the table have been updated.</dd>
@@ -310,28 +311,29 @@
   <dd>The callback event for the <a href="#GoogleSheets.RemoveRow"><code class="highlighter-rouge">RemoveRow</code></a> block, called once the
  values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedWriteCell">FinishedWriteCell()</dt>
-  <dd>The callback event for the <a href="#GoogleSheets.WriteCell"><code class="highlighter-rouge">WriteCell</code></a> block.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.WriteCell"><code class="highlighter-rouge">WriteCell</code></a> block, called once the
+ values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedWriteCol">FinishedWriteCol()</dt>
   <dd>The callback event for the <a href="#GoogleSheets.WriteCol"><code class="highlighter-rouge">WriteCol</code></a> block, called once the
  values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedWriteRange">FinishedWriteRange()</dt>
-  <dd>The callback event for the <a href="#GoogleSheets.WriteRange"><code class="highlighter-rouge">WriteRange</code></a> block.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.WriteRange"><code class="highlighter-rouge">WriteRange</code></a> block, called once the
+ values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedWriteRow">FinishedWriteRow()</dt>
   <dd>The callback event for the <a href="#GoogleSheets.WriteRow"><code class="highlighter-rouge">WriteRow</code></a> block, called once the
  values on the table have been updated.</dd>
   <dt id="GoogleSheets.GotCellData">GotCellData(<em class="text">cellData</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.ReadCell"><code class="highlighter-rouge">ReadCell</code></a> block. The <code class="highlighter-rouge">cellData</code> is
- the text value in the cell (and not the underlying formula).</dd>
+ the text value in the cell.</dd>
   <dt id="GoogleSheets.GotColData">GotColData(<em class="list">colDataList</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.ReadCol"><code class="highlighter-rouge">ReadCol</code></a> block. The <code class="highlighter-rouge">colDataList</code> is a
  list of text cell-values in order of increasing row number.</dd>
   <dt id="GoogleSheets.GotQueryResult">GotQueryResult(<em class="list">response</em>)</dt>
   <dd>The callbeck event for the <a href="#GoogleSheets.ReadWithQuery"><code class="highlighter-rouge">ReadWithQuery</code></a> block. The <code class="highlighter-rouge">response</code>
- is a list of rows, where each row is a list of cell data. The structure is
- similar to that of <code class="highlighter-rouge">rangeData</code> in the GotRangeData event block.</dd>
+ is a list of rows, where each row satisfies the query.</dd>
   <dt id="GoogleSheets.GotRangeData">GotRangeData(<em class="list">rangeData</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.ReadRange"><code class="highlighter-rouge">ReadRange</code></a> block. The <code class="highlighter-rouge">rangeData</code> is
- a list of rows with the requested dimensions.</dd>
+ a list of rows, where the dimensions are the same as the rangeReference.</dd>
   <dt id="GoogleSheets.GotRowData">GotRowData(<em class="list">rowDataList</em>)</dt>
   <dd>The callback event for the <a href="#GoogleSheets.ReadRow"><code class="highlighter-rouge">ReadRow</code></a> block. The <code class="highlighter-rouge">rowDataList</code> is a
  list of text cell-values in order of increasing column number.</dd>
@@ -344,12 +346,12 @@
 
 <dl class="methods">
   <dt id="GoogleSheets.AddCol" class="method"><i></i> AddCol(<em class="text">sheetName</em>,<em class="list">data</em>)</dt>
-  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, appends the values in <code class="highlighter-rouge">data</code> to the next
- empty column of the sheet. It will always start from the top row and
- continue downwards. Once complete, it triggers the <a href="#GoogleSheets.FinishedAddCol"><code class="highlighter-rouge">FinishedAddCol</code></a>
+  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, appends the values to the next empty
+ column of the sheet. It will always start from the top row and continue
+ downwards. Once complete, it triggers the <a href="#GoogleSheets.FinishedAddCol"><code class="highlighter-rouge">FinishedAddCol</code></a>
  callback event.</dd>
   <dt id="GoogleSheets.AddRow" class="method"><i></i> AddRow(<em class="text">sheetName</em>,<em class="list">data</em>)</dt>
-  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, appends the values in <code class="highlighter-rouge">data</code> to the next
+  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, appends the values to the next
  empty row of the sheet. It will always start from the left most column and
  continue to the right. Once complete, it triggers the <a href="#GoogleSheets.FinishedAddRow"><code class="highlighter-rouge">FinishedAddRow</code></a>
  callback event. Additionally, this returns the row number for the new row.</dd>
@@ -371,19 +373,18 @@
  colNumber and triggers the <a href="#GoogleSheets.GotColData"><code class="highlighter-rouge">GotColData</code></a> callback event.</dd>
   <dt id="GoogleSheets.ReadRange" class="method"><i></i> ReadRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>)</dt>
   <dd>On the page with the provided sheetName, reads the cells at the given
- cellReference and triggers the <a href="#GoogleSheets.GotRangeData"><code class="highlighter-rouge">GotRangeData</code></a> callback event. The
+ rangeReference and triggers the <a href="#GoogleSheets.GotRangeData"><code class="highlighter-rouge">GotRangeData</code></a> callback event. The
  rangeReference can be either a text block with A1-Notation, or the result
  of the <a href="#GoogleSheets.getRangeReference"><code class="highlighter-rouge">getRangeReference</code></a> block.</dd>
   <dt id="GoogleSheets.ReadRow" class="method"><i></i> ReadRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>)</dt>
   <dd>On the page with the provided sheetName, reads the row at the given
  rowNumber and triggers the <a href="#GoogleSheets.GotRowData"><code class="highlighter-rouge">GotRowData</code></a> callback event.</dd>
   <dt id="GoogleSheets.ReadSheet" class="method"><i></i> ReadSheet(<em class="text">sheetName</em>)</dt>
-  <dd>Reads the <b>entire</b> Google Sheets document. It will provide the values
- of the entire sheet as a list of rows in the <a href="#GoogleSheets.GotSheetData"><code class="highlighter-rouge">GotSheetData</code></a>
- callback event.</dd>
+  <dd>Reads the <b>entire</b> Google Sheets document and triggers the
+ <a href="#GoogleSheets.GotSheetData"><code class="highlighter-rouge">GotSheetData</code></a> callback event.</dd>
   <dt id="GoogleSheets.ReadWithQuery" class="method"><i></i> ReadWithQuery(<em class="number">gridId</em>,<em class="text">query</em>)</dt>
   <dd>(<b>Note:</b> This requires that the Google Sheets document is shared such
- that <b>“Anyone with the link can view.””</b>) Uses the Google Query
+ that <b>“Anyone with the link can view.”</b>) Uses the Google Query
  Language, a language similar to SQL, to fetch data from publicly readable
  Google Sheets. For information on the syntax, see Google’s Query Language
  Reference <a href="https://developers.google.com/chart/interactive/docs/querylanguage?hl=en">
@@ -392,39 +393,33 @@
   <dd>Deletes the column with the given column number from the table. This does
  not clear the column, but removes it entirely. The sheet’s grid id can be
  found at the end of the url of the Google Sheets document, right after the
- <code class="highlighter-rouge">gid=</code>. Once complete, it triggers the <a href="#GoogleSheets.FinishedRemoveCol"><code class="highlighter-rouge">FinishedRemoveCol</code></a>
+ “gid=”. Once complete, it triggers the <a href="#GoogleSheets.FinishedRemoveCol"><code class="highlighter-rouge">FinishedRemoveCol</code></a>
  callback event.</dd>
   <dt id="GoogleSheets.RemoveRow" class="method"><i></i> RemoveRow(<em class="number">gridId</em>,<em class="number">rowNumber</em>)</dt>
   <dd>Deletes the row with the given row number (1-indexed) from the table. This
  does not clear the row, but removes it entirely. The sheet’s grid id can be
  found at the end of the url of the Google Sheets document, right after the
- <code class="highlighter-rouge">gid=</code>. Once complete, it triggers the <a href="#GoogleSheets.FinishedRemoveRow"><code class="highlighter-rouge">FinishedRemoveRow</code></a>
+ “gid=”. Once complete, it triggers the <a href="#GoogleSheets.FinishedRemoveRow"><code class="highlighter-rouge">FinishedRemoveRow</code></a>
  callback event.</dd>
   <dt id="GoogleSheets.WriteCell" class="method"><i></i> WriteCell(<em class="text">sheetName</em>,<em class="text">cellReference</em>,<em class="any">data</em>)</dt>
-  <dd>Given text or a number as <code class="highlighter-rouge">data</code>, writes the value into the cell as if you
- typed it yourself. (Thus, most formulas should work). It will override any
- existing data in the cell with the one provided. Once complete, it triggers
- the <a href="#GoogleSheets.FinishedWriteCell"><code class="highlighter-rouge">FinishedWriteCell</code></a> callback event.</dd>
+  <dd>Given text or a number as <code class="highlighter-rouge">data</code>, writes the value to the cell. It will
+ override any existing data in the cell with the one provided. Once complete,
+ it triggers the <a href="#GoogleSheets.FinishedWriteCell"><code class="highlighter-rouge">FinishedWriteCell</code></a> callback event.</dd>
   <dt id="GoogleSheets.WriteCol" class="method"><i></i> WriteCol(<em class="text">sheetName</em>,<em class="number">colNumber</em>,<em class="list">data</em>)</dt>
-  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, writes the values in <code class="highlighter-rouge">data</code> to the column
- of the sheet with the given <code class="highlighter-rouge">colNumber</code>. It will always start from the top
- row and continue downwards. If there are already values in that column, this
- method will override them with the new data. (Note: It will not erase the
- entire column.) Once complete, it triggers the <a href="#GoogleSheets.FinishedWriteCol"><code class="highlighter-rouge">FinishedWriteCol</code></a>
- callback event.</dd>
+  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, writes the values to the column with the
+ given column number, overriding existing values from top down. (Note: It
+ will not erase the entire column.) Once complete, it triggers the
+ <a href="#GoogleSheets.FinishedWriteCol"><code class="highlighter-rouge">FinishedWriteCol</code></a> callback event.</dd>
   <dt id="GoogleSheets.WriteRange" class="method"><i></i> WriteRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>,<em class="list">data</em>)</dt>
-  <dd>Given list of lists as <code class="highlighter-rouge">data</code>, writes the values into the range as if you
- typed it yourself. The number of rows and columns in the range must match
- the dimensions of your data. This method will override existing data in the
- range with the data provided. Once complete, it triggers the
- <a href="#GoogleSheets.FinishedWriteRange"><code class="highlighter-rouge">FinishedWriteRange</code></a> callback event.</dd>
+  <dd>Given list of lists as <code class="highlighter-rouge">data</code>, writes the values to cells in the range. The
+ number of rows and columns in the range must match the dimensions of your
+ data. This method will override existing data in the range. Once complete,
+ it triggers the <a href="#GoogleSheets.FinishedWriteRange"><code class="highlighter-rouge">FinishedWriteRange</code></a> callback event.</dd>
   <dt id="GoogleSheets.WriteRow" class="method"><i></i> WriteRow(<em class="text">sheetName</em>,<em class="number">rowNumber</em>,<em class="list">data</em>)</dt>
-  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, writes the values in <code class="highlighter-rouge">data</code> to the row of
- the sheet with the given row number. It will always start from the left
- most column and continue to the right. If there are already values in that
- row, this method will override them with the new data. (Note: It will not
- erase the entire row.) Once complete, it triggers the <a href="#GoogleSheets.FinishedWriteRow"><code class="highlighter-rouge">FinishedWriteRow</code></a>
- callback event.</dd>
+  <dd>Given a list of values as <code class="highlighter-rouge">data</code>, writes the values to the row  with the
+ given row number, overriding existing values from left to right. (Note: It
+ will not erase the entire row.) Once complete, it triggers the
+ <a href="#GoogleSheets.FinishedWriteRow"><code class="highlighter-rouge">FinishedWriteRow</code></a> callback event.</dd>
 </dl>
 
 <h2 id="TinyDB">TinyDB</h2>
