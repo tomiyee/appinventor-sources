@@ -1243,9 +1243,15 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Sheet-wise Operations */
 
+  /**
+   * Reads the <b>entire</b> Google Sheets document. It will provide the values
+   * of the entire sheet as a list of rows in the {@link #GotSheetData()}
+   * callback event.
+   */
   @SimpleFunction(
-    description="Reads the *entire* Google Sheet document. It will then provide " +
-      "the values of the full sheet will be provided as a list of lists of text.")
+    description="Reads the *entire* Google Sheet document. It will provide " +
+      "the values of the entire sheet as a list of rows in the GotSheetData " +
+      "callback event.")
   public void ReadSheet (final String sheetName) {
 
     // Asynchronously fetch the data in the cell
@@ -1295,10 +1301,13 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     });
   }
 
+  /**
+   * The callback event for the {@link #ReadSheet()} block. The `sheetData` is a
+   * list of rows.
+   */
   @SimpleEvent(
-    description="After calling the ReadSheet method, the data in the range will " +
-      "be stored as a list of rows, where every row is another list of text, in " +
-      "`sheetData`.")
+    description="The callback event for the ReadSheet block. The `sheetData` " +
+      "is a list of rows.")
   public void GotSheetData (final List<List<String>> sheetData) {
     Log.d(LOG_TAG, "GotSheetData got: " + sheetData);
     EventDispatcher.dispatchEvent(this, "GotSheetData", sheetData);

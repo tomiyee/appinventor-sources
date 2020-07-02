@@ -252,7 +252,8 @@ GoogleSheets is a non-visible component for storing and receiving data from
  list of text cell-values in order of increasing column number.
 
 {:id="GoogleSheets.GotSheetData"} GotSheetData(*sheetData*{:.list})
-: After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in `sheetData`.
+: The callback event for the [`ReadSheet`](#GoogleSheets.ReadSheet) block. The `sheetData` is a
+ list of rows.
 
 ### Methods  {#GoogleSheets-Methods}
 
@@ -295,7 +296,9 @@ GoogleSheets is a non-visible component for storing and receiving data from
  rowNumber and triggers the [`GotRowData`](#GoogleSheets.GotRowData) callback event.
 
 {:id="GoogleSheets.ReadSheet" class="method"} <i/> ReadSheet(*sheetName*{:.text})
-: Reads the *entire* Google Sheet document. It will then provide the values of the full sheet will be provided as a list of lists of text.
+: Reads the <b>entire</b> Google Sheets document. It will provide the values
+ of the entire sheet as a list of rows in the [`GotSheetData`](#GoogleSheets.GotSheetData)
+ callback event.
 
 {:id="GoogleSheets.ReadWithQuery" class="method"} <i/> ReadWithQuery(*gridId*{:.number},*query*{:.text})
 : (<b>Note:</b> This requires that the Google Sheets document is shared such

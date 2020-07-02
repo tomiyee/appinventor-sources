@@ -334,7 +334,8 @@
   <dd>The callback event for the <a href="#GoogleSheets.ReadRow"><code class="highlighter-rouge">ReadRow</code></a> block. The <code class="highlighter-rouge">rowDataList</code> is a
  list of text cell-values in order of increasing column number.</dd>
   <dt id="GoogleSheets.GotSheetData">GotSheetData(<em class="list">sheetData</em>)</dt>
-  <dd>After calling the ReadSheet method, the data in the range will be stored as a list of rows, where every row is another list of text, in <code class="highlighter-rouge">sheetData</code>.</dd>
+  <dd>The callback event for the <a href="#GoogleSheets.ReadSheet"><code class="highlighter-rouge">ReadSheet</code></a> block. The <code class="highlighter-rouge">sheetData</code> is a
+ list of rows.</dd>
 </dl>
 
 <h3 id="GoogleSheets-Methods">Methods</h3>
@@ -369,7 +370,9 @@
   <dd>On the page with the provided sheetName, reads the row at the given
  rowNumber and triggers the <a href="#GoogleSheets.GotRowData"><code class="highlighter-rouge">GotRowData</code></a> callback event.</dd>
   <dt id="GoogleSheets.ReadSheet" class="method"><i></i> ReadSheet(<em class="text">sheetName</em>)</dt>
-  <dd>Reads the <em>entire</em> Google Sheet document. It will then provide the values of the full sheet will be provided as a list of lists of text.</dd>
+  <dd>Reads the <b>entire</b> Google Sheets document. It will provide the values
+ of the entire sheet as a list of rows in the <a href="#GoogleSheets.GotSheetData"><code class="highlighter-rouge">GotSheetData</code></a>
+ callback event.</dd>
   <dt id="GoogleSheets.ReadWithQuery" class="method"><i></i> ReadWithQuery(<em class="number">gridId</em>,<em class="text">query</em>)</dt>
   <dd>(<b>Note:</b> This requires that the Google Sheets document is shared such
  that <b>“Anyone with the link can view.””</b>) Uses the Google Query
