@@ -222,17 +222,19 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   /* Utility Functions for Making Calls */
 
-  private Credential authorize() throws IOException {
-
+  private GoogleCredential authorize() throws IOException {
     if (cachedCredentialsFile == null) {
-      cachedCredentialsFile = MediaUtil.copyMediaToTempFile(container.$form(), this.credentialsPath);
+      cachedCredentialsFile = MediaUtil.copyMediaToTempFile(
+        container.$form(),
+        this.credentialsPath
+      );
     }
 
     // Convert the above java.io.File -> InputStream
     InputStream in = new FileInputStream(cachedCredentialsFile);
 
     // TODO: Catch Malformed Credentials JSON
-    Credential credential = GoogleCredential.fromStream(in)
+    GoogleCredential credential = GoogleCredential.fromStream(in)
       .createScoped(Arrays.asList(SheetsScopes.SPREADSHEETS));
 
     return credential;
@@ -240,10 +242,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
 
   // Uses the Google Sheets Credentials to create a Google Sheets API instance
   // required for all other Google Sheets API calls
-  private Sheets getSheetsService ()  throws IOException, GeneralSecurityException {
+  private Sheets getSheetsService () throws IOException, GeneralSecurityException {
     // Generate a new sheets service only if there is not one already created
     if (sheetsService == null) {
-      Credential credential = authorize();
+      GoogleCredential credential = authorize();
       this.sheetsService = new Sheets.Builder(new NetHttpTransport(),
         JacksonFactory.getDefaultInstance(), credential)
         .setApplicationName(ApplicationName)

@@ -17,10 +17,14 @@ layout: documentation
 
 # Create a Service Account
 
-To use the Google Sheets API, you will need to create a Service Account. A
-service account is a user account that’s created to interact with a specific
-piece of software or service. The service we are using in this case is the
-Google Sheets API.
+As of 2015, Google started to require that developers identify oneself when
+using a Google API. This includes reading data from a public Google Sheets
+Document. Thus, in order to identify oneself, developers must create a project
+and use either an API key or Service Account.
+
+In this tutorial, we will be creating a Service Account, a user account that’s
+created to interact with a specific piece of software or service. In our case,
+this specific piece of software is the Google Sheets API. You can then reuse this Service account for other apps made with App Inventor.
 
 ## 1. Create a Google Developer Account
 
@@ -213,5 +217,5 @@ file you got from the Service Account setup steps.
 If you get this error message, there may be an error with the range that you
 provided. This could mean that the sheetName you’ve provided does not actually
 exist, or that the reference you provided is not valid A1-notation. To learn
-more about A1 notation, see this reference: 
+more about A1 notation, see this reference:
 https://developers.google.com/sheets/api/guides/concepts#a1_notation
