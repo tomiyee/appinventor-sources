@@ -343,11 +343,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     try {
       encodedQuery = URLEncoder.encode(query, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      // If UTF-8 is not supported, we're in big trouble!
-      // According to Javadoc and Android documentation for java.nio.charset.Charset, UTF-8 is
-      // available on every Java implementation.
-      Log.e(LOG_TAG, "UTF-8 is unsupported?", e);
-      ErrorOccurred("GetRowsWithQuery: Something went wrong encoding the query.");
+      ErrorOccurred("GetRowsWithQuery: Error occurred encoding the query. UTF-8 is unsupported?");
       return;
     }
 
@@ -465,8 +461,55 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       @Override
       public void run () {
         try {
-          Sheets sheetsService = getSheetsService();
+          // If no Credentials.json is provided, attempt the HTTP request
+          if (credentialsPath == null) {
+            // Cleans the formatted url in case the sheetname needs to be cleaned
+            String cleanRangeReference = "";
+            try {
+              cleanRangeReference = URLEncoder.encode(rangeReference, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              ErrorOccurred("ReadRow: Error occurred encoding the query. UTF-8 is unsupported?");
+              return;
+            }
 
+            // Formats the data into the URL to read the range
+            String getUrl = String.format(
+              "https://docs.google.com/spreadsheets/d/%s/export?format=csv&range=%s",
+              spreadsheetID, cleanRangeReference);
+
+            // Make the HTTP Request
+            URL url = new URL(getUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+              connection.setRequestMethod("GET");
+            // Catch Bad HTTP Request
+            if (connection.getResponseCode() == 400) {
+              ErrorOccurred("ReadRow: Bad HTTP Request. Please check the address and try again. " + getUrl);
+              return;
+            }
+
+            // Parse the Response
+            String responseContent = getResponseContent(connection);
+            final YailList parsedCsv = CsvUtil.fromCsvTable(responseContent);
+
+            for (Object elem : (LList) parsedCsv.getCdr()) {
+              if (!(elem instanceof YailList))
+                continue;
+              final YailList row = (YailList) elem;
+              // We need to re-enter the main thread before we can dispatch the event!
+              activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                  GotRowData(row);
+                }
+              });
+              return;
+            }
+            ErrorOccurred("ReadRow: Could not find a row from the HTTP Request.");
+            return;
+          }
+
+          // Run this if there is a credentials json provided.
+          Sheets sheetsService = getSheetsService();
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, rangeReference ).execute();
           // Get the actual data from the response
@@ -723,6 +766,54 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       @Override
       public void run () {
         try {
+          // If no Credentials.json is provided, attempt the HTTP request
+          if (credentialsPath == null) {
+            // Cleans the formatted url in case the sheetname needs to be cleaned
+            String cleanRangeReference = "";
+            try {
+              cleanRangeReference = URLEncoder.encode(rangeRef, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              ErrorOccurred("ReadRow: Error occurred encoding the query. UTF-8 is unsupported?");
+              return;
+            }
+
+            // Formats the data into the URL to read the range
+            String getUrl = String.format(
+              "https://docs.google.com/spreadsheets/d/%s/export?format=csv&range=%s",
+              spreadsheetID, cleanRangeReference);
+
+            // Make the HTTP Request
+            URL url = new URL(getUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+              connection.setRequestMethod("GET");
+            // Catch Bad HTTP Request
+            if (connection.getResponseCode() == 400) {
+              ErrorOccurred("ReadCol: Bad HTTP Request. Please check the address and try again. " + getUrl);
+              return;
+            }
+
+            // Parse the Response
+            String responseContent = getResponseContent(connection);
+            YailList parsedCsv = CsvUtil.fromCsvTable(responseContent);
+            final List<String> col = new ArrayList<String>();
+            for (Object elem : (LList) parsedCsv.getCdr()) {
+              if (!(elem instanceof YailList))
+                continue;
+              final YailList row = (YailList) elem;
+
+              col.add(String.format("%s", row.get(1)));
+            }
+            // We need to re-enter the main thread before we can dispatch the event!
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                GotColData(col);
+              }
+            });
+            return;
+          }
+
+          // Run this if there is a credentials json provided.
           Sheets sheetsService = getSheetsService();
 
           ValueRange readResult = sheetsService.spreadsheets().values()
