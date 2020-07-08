@@ -15,16 +15,17 @@ layout: documentation
     + [The Sheet Name](#the-sheet-name)
     + [The Grid ID](#the-grid-id)
 
-# Create a Service Account
+Note: If you are only going to read from the Google Sheets document, and not
+edit or write data to the document, you can skip the process of making a Service
+Account. The only requirement is that the Google Sheets document is shared such
+that anyone with the link can read the document. 
 
-As of 2015, Google started to require that developers identify oneself when
-using a Google API. This includes reading data from a public Google Sheets
-Document. Thus, in order to identify oneself, developers must create a project
-and use either an API key or Service Account.
+# Create a Service Account
 
 In this tutorial, we will be creating a Service Account, a user account that’s
 created to interact with a specific piece of software or service. In our case,
-this specific piece of software is the Google Sheets API. You can then reuse this Service account for other apps made with App Inventor.
+this specific piece of software is the Google Sheets API. You can then reuse
+this Service account for other apps made with App Inventor.
 
 ## 1. Create a Google Developer Account
 
@@ -38,7 +39,10 @@ Sheets that you intend to use.
 
 ## 2. Create a Google Developer Project
 
-Our next step is to create a coding project. Once you have logged into your Google Developer Account, navigate to https://console.developers.google.com/. If this is your first time using your Google Developer Account, you will be prompted to agree to the Terms of Service. Check the box and continue.
+Our next step is to create a coding project. Once you have logged into your
+Google Developer Account, navigate to https://console.developers.google.com/. If
+this is your first time using your Google Developer Account, you will be
+prompted to agree to the Terms of Service. Check the box and continue.
 
 <img src="images/googlesheets-setup-01.png" width="50%">
 

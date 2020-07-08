@@ -452,7 +452,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "read the row at the given rowNumber and trigger the GotRowData " +
       "callback event.")
   public void ReadRow (String sheetName, int rowNumber) {
-    Log.d(LOG_TAG, "Reading Row: " + rowNumber);
+
+    // If there is no credentials file,
+    //   Make a simple HTTP Request
+    // Otherwise (there is a credentials file),
+    //   Use the Google Sheets API
+
     // Properly format the Range Reference
     final String rangeReference = sheetName +  "!" + rowNumber + ":" + rowNumber;
 
@@ -757,6 +762,12 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "the given colNumber and triggers the GotColData callback event.")
   public void ReadCol (String sheetName, int colNumber) {
 
+    // If there is no credentials file,
+    //   Make a simple HTTP Request
+    // Otherwise (there is a credentials file),
+    //   Use the Google Sheets API
+
+
     // Converts the col number to the corresponding letter
     String colReference = getColString(colNumber);
     final String rangeRef = sheetName + "!" + colReference + ":" + colReference;
@@ -773,7 +784,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
             try {
               cleanRangeReference = URLEncoder.encode(rangeRef, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-              ErrorOccurred("ReadRow: Error occurred encoding the query. UTF-8 is unsupported?");
+              ErrorOccurred("ReadCol: Error occurred encoding the query. UTF-8 is unsupported?");
               return;
             }
 
@@ -1082,6 +1093,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "the given cellReference and triggers the GotCellData callback event.")
   public void ReadCell (final String sheetName, final String cellReference) {
 
+    // If there is no credentials file,
+    //   Make a simple HTTP Request
+    // Otherwise (there is a credentials file),
+    //   Use the Google Sheets API
+
     // 1. Check that the Cell Reference is actually a single cell
     if (!cellReference.matches("[a-zA-Z]+[0-9]+")) {
       ErrorOccurred("ReadCell: Invalid Cell Reference");
@@ -1095,6 +1111,56 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         Log.d(LOG_TAG, "Reading Cell: " + cellReference);
 
         try {
+          // If no Credentials.json is provided, attempt the HTTP request
+          if (credentialsPath == null) {
+            // Cleans the formatted url in case the sheetname needs to be cleaned
+            String cleanRangeReference = "";
+            try {
+              cleanRangeReference = URLEncoder.encode(cellReference, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              ErrorOccurred("ReadCell: Error occurred encoding the query. UTF-8 is unsupported?");
+              return;
+            }
+
+            // Formats the data into the URL to read the range
+            String getUrl = String.format(
+              "https://docs.google.com/spreadsheets/d/%s/export?format=csv&range=%s",
+              spreadsheetID, cleanRangeReference);
+
+            // Make the HTTP Request
+            URL url = new URL(getUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+              connection.setRequestMethod("GET");
+            // Catch Bad HTTP Request
+            if (connection.getResponseCode() == 400) {
+              ErrorOccurred("ReadCell: Bad HTTP Request. Please check the address and try again. " + getUrl);
+              return;
+            }
+
+            // Parse the Response
+            String responseContent = getResponseContent(connection);
+            YailList parsedCsv = CsvUtil.fromCsvTable(responseContent);
+
+            for (Object elem : (LList) parsedCsv.getCdr()) {
+              if (!(elem instanceof YailList))
+                continue;
+              YailList row = (YailList) elem;
+              final String cellData = String.format("%s", row.get(1));
+              // We need to re-enter the main thread before we can dispatch the event!
+              activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                  GotCellData(cellData);
+                }
+              });
+              return;
+            }
+
+            ErrorOccurred("ReadCell: Error reading cell data from HTTP Request");
+            return;
+          }
+
+          // Run this if there is a credentials json provided.
           Sheets sheetsService = getSheetsService();
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, sheetName + "!" + cellReference).execute();
@@ -1215,7 +1281,10 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "the given range. Triggers the getRangeReference once complete.")
   public void ReadRange (final String sheetName, final String rangeReference) {
 
-    // (TODO) Check if the rangeReference is a valid A1 Format
+    // If there is no credentials file,
+    //   Make a simple HTTP Request
+    // Otherwise (there is a credentials file),
+    //   Use the Google Sheets API
 
     // Asynchronously fetch the data in the cell
     AsynchUtil.runAsynchronously(new Runnable() {
@@ -1224,6 +1293,46 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         Log.d(LOG_TAG, "Reading Range: " + rangeReference);
 
         try {
+          // If no Credentials.json is provided, attempt the HTTP request
+          if (credentialsPath == null) {
+            // Cleans the formatted url in case the sheetname needs to be cleaned
+            String cleanRangeReference = "";
+            try {
+              cleanRangeReference = URLEncoder.encode(rangeReference, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              ErrorOccurred("ReadRange: Error occurred encoding the query. UTF-8 is unsupported?");
+              return;
+            }
+
+            // Formats the data into the URL to read the range
+            String getUrl = String.format(
+              "https://docs.google.com/spreadsheets/d/%s/export?format=csv&range=%s",
+              spreadsheetID, cleanRangeReference);
+
+            // Make the HTTP Request
+            URL url = new URL(getUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+              connection.setRequestMethod("GET");
+            // Catch Bad HTTP Request
+            if (connection.getResponseCode() == 400) {
+              ErrorOccurred("ReadRange: Bad HTTP Request. Please check the address and try again. " + getUrl);
+              return;
+            }
+
+            // Parse the Response
+            String responseContent = getResponseContent(connection);
+            final YailList parsedCsv = CsvUtil.fromCsvTable(responseContent);
+            // We need to re-enter the main thread before we can dispatch the event!
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                GotRangeData(parsedCsv);
+              }
+            });
+            return;
+          }
+
+          // Run this if there is a credentials json provided.
           Sheets sheetsService = getSheetsService();
           ValueRange readResult = sheetsService.spreadsheets().values()
             .get(spreadsheetID, sheetName + "!" + rangeReference).execute();
@@ -1369,6 +1478,11 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "GotSheetData callback event.")
   public void ReadSheet (final String sheetName) {
 
+    // If there is no credentials file,
+    //   Make a simple HTTP Request
+    // Otherwise (there is a credentials file),
+    //   Use the Google Sheets API
+
     // Asynchronously fetch the data in the cell
     AsynchUtil.runAsynchronously(new Runnable() {
       @Override
@@ -1376,6 +1490,46 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
         Log.d(LOG_TAG, "Reading Sheet: " + sheetName);
 
         try {
+          // If no Credentials.json is provided, attempt the HTTP request
+          if (credentialsPath == null) {
+            // Cleans the formatted url in case the sheetname needs to be cleaned
+            String cleanRangeReference = "";
+            try {
+              cleanRangeReference = URLEncoder.encode(sheetName+"!", "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              ErrorOccurred("ReadRange: Error occurred encoding the query. UTF-8 is unsupported?");
+              return;
+            }
+
+            // Formats the data into the URL to read the range
+            String getUrl = String.format(
+              "https://docs.google.com/spreadsheets/d/%s/export?format=csv&sheet=%s",
+              spreadsheetID, cleanRangeReference);
+
+            // Make the HTTP Request
+            URL url = new URL(getUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+              connection.setRequestMethod("GET");
+            // Catch Bad HTTP Request
+            if (connection.getResponseCode() == 400) {
+              ErrorOccurred("ReadSheet: Bad HTTP Request. Please check the address and try again. " + getUrl);
+              return;
+            }
+
+            // Parse the Response
+            String responseContent = getResponseContent(connection);
+            final YailList parsedCsv = CsvUtil.fromCsvTable(responseContent);
+            // We need to re-enter the main thread before we can dispatch the event!
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                GotSheetData(parsedCsv);
+              }
+            });
+            return;
+          }
+
+          // Run this if there is a credentials json provided.
           Sheets sheetsService = getSheetsService();
           // Spreadsheet sheet = sheetsService.spreadsheets().get(spreadsheetID).execute();
           ValueRange readResult = sheetsService.spreadsheets().values()
