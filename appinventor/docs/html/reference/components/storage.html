@@ -304,6 +304,9 @@
   <dd>The callback event for the <a href="#GoogleSheets.AddRow"><code class="highlighter-rouge">AddRow</code></a> block, called once the
  values on the table have been updated. Additionally, this returns the
  row number for the new row.</dd>
+  <dt id="GoogleSheets.FinishedClearRange">FinishedClearRange()</dt>
+  <dd>The callback event for the <a href="#GoogleSheets.ClearRange"><code class="highlighter-rouge">ClearRange</code></a> block, called once the
+ values on the table have been updated.</dd>
   <dt id="GoogleSheets.FinishedRemoveCol">FinishedRemoveCol()</dt>
   <dd>The callback event for the <a href="#GoogleSheets.RemoveCol"><code class="highlighter-rouge">RemoveCol</code></a> block, called once the
  values on the table have been updated.</dd>
@@ -355,6 +358,9 @@
  empty row of the sheet. It will always start from the left most column and
  continue to the right. Once complete, it triggers the <a href="#GoogleSheets.FinishedAddRow"><code class="highlighter-rouge">FinishedAddRow</code></a>
  callback event. Additionally, this returns the row number for the new row.</dd>
+  <dt id="GoogleSheets.ClearRange" class="method"><i></i> ClearRange(<em class="text">sheetName</em>,<em class="text">rangeReference</em>)</dt>
+  <dd>Empties the cells in the given range. Once complete, this block triggers
+ the <a href="#GoogleSheets.FinishedClearRange"><code class="highlighter-rouge">FinishedClearRange</code></a> callback event.</dd>
   <dt id="GoogleSheets.GetCellReference" class="method returns text"><i></i> GetCellReference(<em class="number">row</em>,<em class="number">col</em>)</dt>
   <dd>Converts the integer representation of rows and columns to A1-Notation used
  in Google Sheets for a single cell. For example, row 1 and col 2

@@ -211,6 +211,10 @@ GoogleSheets is a non-visible component for storing and receiving data from
  values on the table have been updated. Additionally, this returns the
  row number for the new row.
 
+{:id="GoogleSheets.FinishedClearRange"} FinishedClearRange()
+: The callback event for the [`ClearRange`](#GoogleSheets.ClearRange) block, called once the
+ values on the table have been updated.
+
 {:id="GoogleSheets.FinishedRemoveCol"} FinishedRemoveCol()
 : The callback event for the [`RemoveCol`](#GoogleSheets.RemoveCol) block, called once the
  values on the table have been updated.
@@ -274,6 +278,10 @@ GoogleSheets is a non-visible component for storing and receiving data from
  empty row of the sheet. It will always start from the left most column and
  continue to the right. Once complete, it triggers the [`FinishedAddRow`](#GoogleSheets.FinishedAddRow)
  callback event. Additionally, this returns the row number for the new row.
+
+{:id="GoogleSheets.ClearRange" class="method"} <i/> ClearRange(*sheetName*{:.text},*rangeReference*{:.text})
+: Empties the cells in the given range. Once complete, this block triggers
+ the [`FinishedClearRange`](#GoogleSheets.FinishedClearRange) callback event.
 
 {:id="GoogleSheets.GetCellReference" class="method returns text"} <i/> GetCellReference(*row*{:.number},*col*{:.number})
 : Converts the integer representation of rows and columns to A1-Notation used

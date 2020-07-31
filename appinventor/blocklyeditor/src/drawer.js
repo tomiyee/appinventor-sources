@@ -499,7 +499,7 @@ Blockly.Drawer.defaultBlockXMLStrings = {
     '</block>' +
   '</xml>' },
 
-   math_random_int: {xmlString:
+  math_random_int: {xmlString:
   '<xml>' +
     '<block type="math_random_int">' +
     '<value name="FROM"><block type="math_number"><title name="NUM">1</title></block></value>' +
@@ -796,6 +796,20 @@ Blockly.Drawer.defaultBlockXMLStrings = {
       );
     }},
 
+    // GoogleSheets.ClearRange method default to Clearing from "Sheet1"
+    {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"ClearRange"},
+    mutatorXMLStringFunction: function(mutatorAttributes) {
+      return (
+        '<xml>' +
+        '<block type="component_method">' +
+        // mutator generator
+        Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
+        '<value name="ARG0"><block type="text"><field name="TEXT">Sheet1</field></block></value>' +
+        '</block>' +
+        '</xml>'
+      );
+    }},
+
     // GoogleSheets.Add methods default to adding to "Sheet1"
     {matchingMutatorAttributes:{component_type:"GoogleSheets", method_name:"AddRow"},
     mutatorXMLStringFunction: function(mutatorAttributes) {
@@ -847,9 +861,6 @@ Blockly.Drawer.defaultBlockXMLStrings = {
         '</xml>'
       );
     }},
-
-
-
 
   ]
 };

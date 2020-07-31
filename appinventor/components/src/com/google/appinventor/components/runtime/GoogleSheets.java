@@ -24,7 +24,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.BatchGetValuesByDataFilterRequest;
-import com.google.api.services.sheets.v4.model.BatchGetValuesByDataFilterRequest;
+import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.DataFilter;
 import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
 import com.google.api.services.sheets.v4.model.DimensionRange;
@@ -1396,7 +1396,7 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
       "match the dimensions of the data.")
   public void WriteRange (String sheetName, String rangeReference, YailList data) {
 
-    // (TODO) Check that the range reference is in A1 notatoin
+    // (TODO) Check that the range reference is in A1 notation
 
     // Generates the A1 Reference for the operation
     final String rangeRef = sheetName + "!" + rangeReference;
@@ -1465,6 +1465,44 @@ public class GoogleSheets extends AndroidNonvisibleComponent implements Componen
     description="The callback event for the WriteRange block.")
   public void FinishedWriteRange () {
     EventDispatcher.dispatchEvent(this, "FinishedWriteRange");
+  }
+
+  /**
+   * Empties the cells in the given range. Once complete, this block triggers
+   * the {@link #FinishedClearRange()} callback event.
+   */
+  @SimpleFunction(
+    description="Empties the cells in the given range. Once complete, this " +
+      "block triggers the FinishedClearRange callback event.")
+  public void ClearRange (String sheetName, String rangeReference) {
+    final String rangeRef = sheetName + "!" + rangeReference;
+    // Runs the Clear call asynchronously
+    AsynchUtil.runAsynchronously(new Runnable() {
+      @Override
+      public void run () {
+        try {
+          Sheets sheetsService = getSheetsService();
+          // ClearValuesResponse response =
+          sheetsService.spreadsheets().values()
+            .clear(spreadsheetID, rangeRef, new ClearValuesRequest())
+            .execute();
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+          ErrorOccurred("ClearRange: " + e.getMessage());
+        }
+      }
+    });
+  }
+
+  /**
+   * The callback event for the {@link #ClearRange()} block, called once the
+   * values on the table have been updated.
+   */
+  @SimpleEvent(
+    description="The callback event for the ClearRange block.")
+  public void FinishedClearRange () {
+    EventDispatcher.dispatchEvent(this, "FinishedClearRange");
   }
 
   /* Sheet-wise Operations */
